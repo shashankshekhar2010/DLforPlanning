@@ -1,0 +1,9 @@
+package bgu.dl.features.learning;
+
+/**
+ * @author Shashank Shekhar
+ * BGU of the Negev
+ */
+public class PossibleLiterals {
+
+}

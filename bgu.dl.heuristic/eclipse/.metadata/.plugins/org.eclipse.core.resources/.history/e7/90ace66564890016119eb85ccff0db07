@@ -1,0 +1,24 @@
+package bgu.dl.features.collections;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
+import bgu.dl.features.learning.ProblemDetails;
+
+/**
+ * @author Shashank Shekhar
+ * BGU of the Negev
+ * @throws FileNotFoundException 
+ */
+public class DataSet {	
+	ProblemDetails details =  null;
+	
+	public DataSet(ProblemDetails details) {
+		this.details = details;
+	}
+	
+	ArrayList<?> initialState = this.details.getInitialState()
+	ArrayList goalState = this.details.getGoalState();
+	
+	
+}

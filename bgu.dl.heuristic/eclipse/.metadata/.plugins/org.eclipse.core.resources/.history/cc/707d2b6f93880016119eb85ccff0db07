@@ -1,0 +1,99 @@
+INFO     Running translator.
+INFO     translator input: ['/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/domain.pddl', '/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/probBLOCKS-4-0.pddl']
+INFO     translator arguments: []
+INFO     translator time limit: None
+INFO     translator memory limit: None
+INFO     callstring: /usr/bin/python /home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/builds/release32/bin/translate/translate.py /home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/domain.pddl /home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/probBLOCKS-4-0.pddl
+Parsing...
+Parsing: [0.000s CPU, 0.001s wall-clock]
+Normalizing task... [0.000s CPU, 0.000s wall-clock]
+Instantiating...
+Generating Datalog program... [0.000s CPU, 0.000s wall-clock]
+Normalizing Datalog program...
+Normalizing Datalog program: [0.000s CPU, 0.001s wall-clock]
+Preparing model... [0.000s CPU, 0.000s wall-clock]
+Generated 21 rules.
+Computing model... [0.010s CPU, 0.001s wall-clock]
+78 relevant atoms
+52 auxiliary atoms
+130 final queue length
+206 total queue pushes
+Completing instantiation... [0.000s CPU, 0.001s wall-clock]
+Instantiating: [0.010s CPU, 0.003s wall-clock]
+Computing fact groups...
+Finding invariants...
+10 initial candidates
+Finding invariants: [0.000s CPU, 0.003s wall-clock]
+Checking invariant weight... [0.000s CPU, 0.000s wall-clock]
+Instantiating groups... [0.000s CPU, 0.000s wall-clock]
+Collecting mutex groups... [0.000s CPU, 0.000s wall-clock]
+Choosing groups...
+5 uncovered facts
+Choosing groups: [0.000s CPU, 0.000s wall-clock]
+Building translation key... [0.000s CPU, 0.000s wall-clock]
+Computing fact groups: [0.000s CPU, 0.003s wall-clock]
+Building STRIPS to SAS dictionary... [0.000s CPU, 0.000s wall-clock]
+Building dictionary for full mutex groups... [0.000s CPU, 0.000s wall-clock]
+Building mutex information...
+Building mutex information: [0.000s CPU, 0.000s wall-clock]
+Translating task...
+Processing axioms...
+Simplifying axioms... [0.000s CPU, 0.000s wall-clock]
+Processing axioms: [0.000s CPU, 0.000s wall-clock]
+Translating task: [0.000s CPU, 0.001s wall-clock]
+44 effect conditions simplified
+0 implied preconditions added
+Detecting unreachable propositions...
+0 operators removed
+0 axioms removed
+8 propositions removed
+Detecting unreachable propositions: [0.000s CPU, 0.001s wall-clock]
+Translator variables: 9
+Translator derived variables: 0
+Translator facts: 30
+Translator goal facts: 3
+Translator mutex groups: 9
+Translator total mutex groups size: 45
+Translator operators: 32
+Translator axioms: 0
+Translator task size: 315
+Translator peak memory: 32976 KB
+Writing output... [0.010s CPU, 0.000s wall-clock]
+Done! [0.020s CPU, 0.011s wall-clock]
+INFO     Running preprocessor (release32).
+INFO     preprocessor input: output.sas
+INFO     preprocessor arguments: []
+INFO     preprocessor time limit: None
+INFO     preprocessor memory limit: None
+INFO     callstring: /home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/builds/release32/bin/preprocess < output.sas
+Building causal graph...
+The causal graph is not acyclic.
+9 variables of 9 necessary
+5 of 9 mutex groups necessary.
+32 of 32 operators necessary.
+0 of 0 axiom rules necessary.
+Building domain transition graphs...
+solveable in poly time 0
+Building successor generator...
+Preprocessor facts: 30
+Preprocessor derived variables: 0
+Preprocessor task size: 295
+Writing output...
+done
+INFO     Running search (release32).
+INFO     search input: output
+INFO     search arguments: ['--search', '"lazy_greedy(ff(),', 'preferred=ff())"']
+INFO     search time limit: None
+INFO     search memory limit: None
+INFO     search executable: /home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/builds/release32/bin/downward
+INFO     callstring: /home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/builds/release32/bin/downward --search '"lazy_greedy(ff(),' 'preferred=ff())"' --internal-plan-file sas_plan < output
+reading input... [t=2.2372e-05s]
+done reading input! [t=0.000404337s]
+packing state variables...done! [t=0.000410537s]
+Variables: 9
+FactPairs: 30
+Bytes per state: 4
+Building successor generator...done! [t=0.000455612s]
+done initalizing global data [t=0.000456862s]
+Peak memory: 3644 KB
+Command '['/home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/builds/release32/bin/downward', '--search', '"lazy_greedy(ff(),', 'preferred=ff())"', '--internal-plan-file', 'sas_plan']' returned non-zero exit status 2

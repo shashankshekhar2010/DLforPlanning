@@ -1,0 +1,1 @@
+(on b d)	(on d b)	(on a d)	(on d a)	(on c d)	(on d c)	(on a b)	(on b a)	(on c b)	(on b c)	(on c a)	(on a c)	(ontable d)	(ontable b)	(ontable a)	(ontable c)	(clear d)	(clear b)	(clear a)	(clear c)	(holding d)	(holding b)	(holding a)	(holding c)	

@@ -1,0 +1,34 @@
+package bgu.dl.features.collections;
+
+import java.util.ArrayList;
+
+import bgu.dl.features.learning.ProblemDetails;
+
+/**
+ * @author Shashank Shekhar
+ * BGU of the Negev
+ * @throws FileNotFoundException 
+ */
+public class DataSet {	
+	ProblemDetails details =  null;
+	
+	public DataSet(ProblemDetails details) {
+		this.details = details;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	ArrayList initialState = this.details.getInitialState();
+	@SuppressWarnings("rawtypes")
+	ArrayList goalState = this.details.getGoalState();
+	
+	
+	public ArrayList<ArrayList> generateSuccessorParentChild() {
+		
+		return null;
+	}
+	
+	
+	 
+	
+	
+}

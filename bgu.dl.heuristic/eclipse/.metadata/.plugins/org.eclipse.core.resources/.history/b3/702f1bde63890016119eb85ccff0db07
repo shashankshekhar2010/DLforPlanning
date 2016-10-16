@@ -1,0 +1,10 @@
+package bgu.dl.features.collections;
+
+import bgu.dl.features.learning.ProblemDetails;
+
+public class DataSet {
+	ProblemDetails details =  null;
+	public DataSet(ProblemDetails details) {
+		
+	}
+}

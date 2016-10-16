@@ -1,0 +1,33 @@
+package bgu.dl.features.learning;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import pddl4j.PDDLObject;
+import pddl4j.exp.AtomicFormula;
+import pddl4j.exp.term.Constant;
+
+/**
+ * @author Shashank Shekhar
+ * BGU of the Negev
+ */
+public class PossibleLiterals {
+	PDDLObject pddlObject = null;
+	public PossibleLiterals(PDDLObject pddlObject){
+		this.pddlObject = pddlObject;
+	}
+	
+	private ArrayList<Constant> listOfConstants() {
+		ArrayList<Constant> listOfCons = null;
+		
+	}
+	private ArrayList<AtomicFormula> listOfUngroundedLiterals() {
+		ArrayList<AtomicFormula> listOfUngroundedLiterals = null;
+		Iterator<AtomicFormula> itr = pddlObject.predicatesIterator();
+		while(itr.hasNext()) {
+			listOfUngroundedLiterals.add(itr.next());
+		}		
+		return listOfUngroundedLiterals;
+	}
+			
+}

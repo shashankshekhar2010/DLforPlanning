@@ -1,0 +1,12 @@
+package bgu.dl.features.learning;
+
+import pddl4j.PDDLObject;
+
+/**
+ * @author Shashank Shekhar
+ * BGU of the Negev
+ */
+public class PossibleLiterals {
+	PDDLObject pddlObject = new PDDLObject();
+
+}

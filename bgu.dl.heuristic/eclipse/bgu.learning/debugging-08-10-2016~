@@ -1,0 +1,5 @@
+
+Function allPossibleFormOfaLiteral () from PossibleGroundedLiterals class
+	1. issue-1: literal.apply() does not work 
+
+Overall not able to retrieve actions in form of Actions's class objects.

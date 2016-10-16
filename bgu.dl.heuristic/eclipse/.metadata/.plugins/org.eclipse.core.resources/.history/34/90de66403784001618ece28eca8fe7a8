@@ -1,0 +1,39 @@
+package bgu.dl.features.learning;
+
+import java.util.Properties;
+
+import pddl4j.RequireKey;
+
+public class test {
+
+	/**
+	 * @author Shashank Shekhar
+	 * BGU of the Negev
+	 */
+	public static void main(String[] args) {
+		System.out.println("Hello BGU");
+		long begin = System.nanoTime();	
+		Properties properties = new Properties();
+		
+		properties.put(RequireKey.STRIPS, true);
+		properties.put(RequireKey.EQUALITY, true);
+		properties.put(RequireKey.ADL, true);
+		properties.put(RequireKey.CONDITIONAL_EFFECTS, true);
+		properties.put(RequireKey.CONSTRAINTS, true);
+		properties.put(RequireKey.CONTINUS_EFFECTS, true);
+		properties.put(RequireKey.DERIVED_PREDICATES, true);
+		properties.put(RequireKey.DISJUNCTIVE_PRECONDITIONS, true);
+		properties.put(RequireKey.DURATION_INEQUALITIES, true);
+		properties.put(RequireKey.DURATIVE_ACTIONS, true);
+		properties.put(RequireKey.EXISTENTIAL_PRECONDITIONS, true);
+		properties.put(RequireKey.FLUENTS, true);
+		properties.put(RequireKey.NEGATIVE_PRECONDITIONS, true);
+		properties.put(RequireKey.PREFERENCES, true);
+		properties.put(RequireKey.QUANTIFIED_PRECONDITIONS, true);
+		properties.put(RequireKey.QUANTIFIED_PRECONDITIONS, true);
+		properties.put(RequireKey.TIMED_INITIAL_LITERALS, true);
+		properties.put(RequireKey.UNIVERSAL_PRECONDITIONS, true);
+		
+	}
+
+}

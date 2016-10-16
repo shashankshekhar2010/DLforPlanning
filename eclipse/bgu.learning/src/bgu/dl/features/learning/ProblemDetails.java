@@ -31,7 +31,15 @@ public class ProblemDetails
 	@SuppressWarnings("rawtypes")
 	private ArrayList initialState, goalState, actions, constants;
 	private PDDLObject pddlObject;	
-	ArrayList<PossibleGroundedActions> gActions = null;
+	ArrayList<PossibleGroundedActions> gActions = new ArrayList<PossibleGroundedActions>();
+
+	public ArrayList<PossibleGroundedActions> getgActions() {
+		return gActions;
+	}
+
+	public void setgActions(ArrayList<PossibleGroundedActions> gActions) {
+		this.gActions = gActions;
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
 	public ProblemDetails(PDDLObject object) 
@@ -166,7 +174,6 @@ public class ProblemDetails
 		while(eItr.hasNext()){
 			precond.add((Exp) eItr.next());						
 		}
-
 		//System.out.println(precond.toString());
 		return precond;
 	}
@@ -183,7 +190,6 @@ public class ProblemDetails
 		{
 			actn = (Action) actItr.next();
 			ArrayList<Exp> precond = getExpPreConditions(actn);
-
 			Set<Variable> freeVar = actn.getPrecondition().getFreeVariables();
 			int noFreeVar = freeVar.size();		
 			/**
@@ -241,7 +247,7 @@ public class ProblemDetails
 								groundedActions.getNegEff().add(af);
 							}							
 						}						
-						/** Add the grounded action to the set of all grounded actions in the domain. */
+						/** Add the grounded action to the set of all grounded actions in the domain. */						
 						gActions.add(groundedActions);
 					}
 				}				

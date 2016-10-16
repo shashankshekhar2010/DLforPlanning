@@ -63,8 +63,8 @@ public class PossibleGroundedLiterals
 				theta.bind((Variable)freeVariableIterator.next(), (Term)listConstants.next());				
 			}			
 			//af.apply(theta);
-			literal.apply(theta);
-			allPossibleFormOfaLiteral.add((AtomicFormula)lit);
+			AtomicFormula af = literal.apply(theta);
+			allPossibleFormOfaLiteral.add(af);
 		}		
 		return allPossibleFormOfaLiteral;
 	}	

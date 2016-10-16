@@ -61,11 +61,9 @@ public class PossibleGroundedLiterals
 			Substitution theta = new Substitution();
 			while (freeVariableIterator.hasNext() && listConstants.hasNext()) {
 				theta.bind((Variable)freeVariableIterator.next(), (Term)listConstants.next());				
-			}	
-			bgu.dl.features.learning.AtomicFormula af = new bgu.dl.features.learning.AtomicFormula("on ?x ?y");
-			//af.apply(theta);
-			literal.apply(theta);
-			allPossibleFormOfaLiteral.add((AtomicFormula)lit);
+			}
+			AtomicFormula af = literal.apply(theta);
+			allPossibleFormOfaLiteral.add((AtomicFormula)af);
 		}		
 		return allPossibleFormOfaLiteral;
 	}	
