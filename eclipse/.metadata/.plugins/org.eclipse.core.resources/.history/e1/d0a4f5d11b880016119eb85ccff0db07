@@ -1,0 +1,220 @@
+package bgu.dl.features.learning;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Stack;
+
+import pddl4j.PDDLObject;
+import pddl4j.exp.AndExp;
+import pddl4j.exp.AtomicFormula;
+import pddl4j.exp.Exp;
+import pddl4j.exp.InitEl;
+import pddl4j.exp.action.Action;
+import pddl4j.exp.term.Constant;
+import pddl4j.exp.term.Variable;
+
+/**
+ * @author Shashank Shekhar
+ * BGU of the Negev
+ */
+public class ProblemDetails {
+	@SuppressWarnings("rawtypes")
+	private ArrayList	initialState,	goalState,	actions,	constants;
+
+	/*Examples of association*/
+	private PDDLObject 	pddlObject;
+
+	/*Constructor with root obj*/
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public ProblemDetails(PDDLObject object) {
+
+		/*Initialize root*/
+		pddlObject = object; 
+		pddlObject.predicatesIterator();		
+
+		/*Generate set of initial predicates*/
+		initialState = new ArrayList();
+		Iterator initItrator = pddlObject.getInit().iterator();
+		//System.out.println("Init state :");
+		while (initItrator.hasNext()) {
+			InitEl item = (InitEl) initItrator.next();
+			initialState.add(item);
+			//System.out.println(item.toString());
+		}	
+
+
+		/*Generate goal predicates*/
+		AndExp goal = (AndExp) pddlObject.getGoal();
+		goalState = new ArrayList<Exp>();
+		Iterator goalIterator = goal.iterator();
+
+		while(goalIterator.hasNext()){
+			goalState.add((Exp) goalIterator.next());						
+		}
+
+		/*Generate set of actions*/
+		actions = new ArrayList();
+		Action act;
+		Iterator actItr = pddlObject.actionsIterator();
+		//System.out.println("Operators :");
+		while(actItr.hasNext()) 
+		{
+			act = (Action) actItr.next();			
+			actions.add(act);
+			//ArrayList<Exp> precond = getPreConditions(act);	
+			//ArrayList<Exp> effc = geteffects(act);
+			Set<Variable> freeVar = act.getPrecondition().getFreeVariables();
+
+		}
+
+		/*List all constants*/
+		constants = new ArrayList();		
+		Iterator constItr = pddlObject.constantsIterator();
+		System.out.println("Constatns :");
+		while(constItr.hasNext()) {
+			Constant c = (Constant) constItr.next();
+			constants.add(c);
+			//System.out.println(c.toString());
+		}	
+	}
+
+	/**
+	 * Method to return preconditions of an action
+	 */
+	@SuppressWarnings("incomplete-switch")
+	public ArrayList<AtomicFormula> getPreConditions(Action actn) 
+	{
+		Stack<Exp> stack = new Stack<Exp>();
+		stack.add(actn.getPrecondition());
+		ArrayList<AtomicFormula> precond = new ArrayList<AtomicFormula>();
+		while (!stack.isEmpty()) 
+		{
+			Exp e = stack.pop();
+			switch (e.getExpID()) 
+			{
+			case AND:
+				AndExp andExp = (AndExp) e;
+				for (Exp sexp : andExp) 
+				{
+					stack.push(sexp);
+				}
+				break;
+			case ATOMIC_FORMULA:
+				AtomicFormula p = (AtomicFormula) e;
+				precond.add(p.clone());
+				break;
+			}			
+		}
+		return precond;	
+	}
+
+	public String[] constantList()
+	{
+		/*Combination Generator*/
+		Iterator<Constant> constantsIterator = pddlObject.constantsIterator();
+		String s1 = new String();
+		while(constantsIterator.hasNext()) {
+			s1 = s1.concat(constantsIterator.next().toString() + " ");
+		}
+		String[] str =  s1.split(" ");	
+		return str;
+	}
+
+	/**
+	 * Method to return effects of an action
+	 */
+	@SuppressWarnings("rawtypes")
+	public ArrayList<Exp> geteffects(Action actn) 
+	{
+		int i=0;
+		AndExp aExp = (AndExp) actn.getEffect();
+		ArrayList<Exp> effect = new ArrayList<Exp>();
+		Iterator effectItr = aExp.iterator();
+		while(effectItr.hasNext()){
+			effect.add((Exp) effectItr.next());
+			//System.out.println("eff "+effect.get(i++));
+		}
+		return effect;
+	}
+
+	/**
+	 * Method to check if a list is subset of another
+	 * */
+	@SuppressWarnings("unused")
+	private boolean isSubsetOf(ArrayList<AtomicFormula> goal, ArrayList<AtomicFormula> start) 
+	{
+		if(goal.isEmpty())
+		{
+			return false;
+		}
+		else
+		{
+			boolean flag = start.containsAll(goal);
+			return(flag);
+		}	
+	}
+
+	/**
+	 * Method to print a list
+	 **/
+	@SuppressWarnings({ "unused", "rawtypes" })
+	private void printList(ArrayList<AtomicFormula> list) 
+	{		
+		Iterator itr = list.iterator();
+		String lst="";
+		while(itr.hasNext()) {
+			lst = lst + itr.next();			
+		}	
+	}
+
+	/*Getters and setters*/
+	@SuppressWarnings("rawtypes")
+	public ArrayList getInitialState() {
+		return initialState;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void setInitialState(ArrayList initialState) {
+		this.initialState = initialState;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public ArrayList getGoalState() {
+		return goalState;
+	}
+
+	@SuppressWarnings("rawtypes") 
+	public void setGoalState(ArrayList goalState) {
+		this.goalState = goalState;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public ArrayList getActions() {
+		return actions;
+	}
+
+	@SuppressWarnings("rawtypes") 
+	public void setActions(ArrayList actions) {
+		this.actions = actions;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public ArrayList getConstants() {
+		return constants;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void setConstants(ArrayList constants) {
+		this.constants = constants;
+	}
+
+	public PDDLObject getPddlObject() {
+		return pddlObject;
+	}
+
+	public void setPddlObject(PDDLObject pddlObject) {
+		this.pddlObject = pddlObject;
+	}
+
+}

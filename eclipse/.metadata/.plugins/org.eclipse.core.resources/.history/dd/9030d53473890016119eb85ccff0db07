@@ -1,0 +1,39 @@
+package bgu.dl.features.collections;
+
+import java.awt.Desktop.Action;
+import java.util.ArrayList;
+
+import bgu.dl.features.learning.ProblemDetails;
+
+/**
+ * @author Shashank Shekhar
+ * BGU of the Negev
+ * @throws FileNotFoundException 
+ */
+public class DataSet {	
+	ProblemDetails details =  null;
+	
+	public DataSet(ProblemDetails details) {
+		this.details = details;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	ArrayList initialState = this.details.getInitialState();
+	@SuppressWarnings("rawtypes")
+	ArrayList goalState = this.details.getGoalState();
+	
+	/**
+	 * method generateSuccessorParentChild
+	 * @return a list of two states (parent and its child)
+	 * A state is also represented in form of a list
+	 */
+	public ArrayList<ArrayList> generateSuccessor(ArrayList parentnode, ArrayList childnode, ArrayList<Action> allPosibleActions) {
+		
+		return null;
+	}
+	
+	
+	 
+	
+	
+}

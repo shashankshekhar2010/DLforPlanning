@@ -1,0 +1,140 @@
+package bgu.dl.features.collections;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import pddl4j.exp.AtomicFormula;
+import pddl4j.exp.Exp;
+import pddl4j.exp.action.Action;
+
+import bgu.dl.features.learning.ProblemDetails;
+
+/**
+ * @author Shashank Shekhar
+ * BGU of the Negev
+ * @throws FileNotFoundException 
+ */
+/**
+ * @author bgumodo1
+ *
+ */
+/**
+ * @author bgumodo1
+ *
+ */
+public class DataSet {	
+	ProblemDetails details =  null;
+	ArrayList<ArrayList<ArrayList>> listOfParentChild = null;
+	ArrayList<PossibleGroundedActions> groundedActions = null; 	
+
+	public DataSet(ProblemDetails details) {
+		this.details = details;
+	}
+
+	@SuppressWarnings("rawtypes")
+	ArrayList initialState = this.details.getInitialState();
+	@SuppressWarnings("rawtypes")
+	ArrayList goalState = this.details.getGoalState();
+
+	/**
+	 * method generateSuccessorParentChild
+	 * @return a list of two states (parent and its child)
+	 * A state is also represented in form of a list
+	 */
+	private ArrayList<ArrayList<ArrayList>> generateSuccessor(ArrayList<ArrayList>parentChildNodes) 
+	{
+		ArrayList parentState = parentChildNodes.get(0);
+		ArrayList childNode = parentChildNodes.get(1);
+		ArrayList<ArrayList> allPossibleStatetsInForwardDirection = allPossibleStatetsInForwardDirection(childNode);
+		for (int i = 0; i < allPossibleStatetsInForwardDirection.size(); i++) {
+
+		}
+		return null;
+	}
+
+	private ArrayList<ArrayList> allPossibleStatetsInForwardDirection(ArrayList childNode) 
+	{
+		ArrayList<PossibleGroundedActions> getApplicableActions = getApplicableActions(childNode);
+		if(getApplicableActions == null) {
+			System.out.println("No actions are appicable on this child node: returning null");
+			return null;
+		}		
+		ArrayList<ArrayList> listOfSuccessorStates = null;
+		for (int i = 0; i < getApplicableActions.size(); i++) {
+			listOfSuccessorStates.add(applyAction(getApplicableActions.get(i), childNode)); 
+		}
+		return listOfSuccessorStates;
+	}
+
+	/**
+	 * Generate all applicable actions
+	 * @param childNode
+	 * @return applicable actions
+	 */
+	@SuppressWarnings("unused")
+	private ArrayList<PossibleGroundedActions> getApplicableActions(ArrayList<AtomicFormula> childNode) 
+	{
+		ArrayList<PossibleGroundedActions> applicableActions = new ArrayList<PossibleGroundedActions>();
+		@SuppressWarnings("rawtypes")
+		Iterator itr = groundedActions.iterator();
+		while(itr.hasNext()) {
+			PossibleGroundedActions ga = (PossibleGroundedActions) itr.next();
+			ArrayList<AtomicFormula> preCond = ga.getPreCond();			
+			if(isSubsetOf(preCond,childNode)) {
+				applicableActions.add(ga);
+			}
+		}
+		return applicableActions;
+	}
+
+	/**
+	 * Check whether state g is a subset of current state curr
+	 * @param g
+	 * @param cur
+	 * @return
+	 */
+	private boolean isSubsetOf(ArrayList<AtomicFormula> g, ArrayList<AtomicFormula> cur) {
+		return(cur.containsAll(g));		
+	}
+
+	/**
+	 * Applies a grounded action on the given state
+	 * @param groundedAction
+	 * @param childNode
+	 * @return A successor state
+	 */
+	@SuppressWarnings("unused")
+	private ArrayList<AtomicFormula> applyAction(PossibleGroundedActions groundedAction, ArrayList<AtomicFormula> childNode) 
+	{
+		ArrayList<AtomicFormula> successorState = new ArrayList<AtomicFormula>();
+		// groundedAction.printGroundedAction();
+		successorState.addAll(childNode);
+		ArrayList<Exp> removeNeg = new ArrayList<Exp>();
+
+		/** Formula: S_{new} = {S_{curr} - stt^{-}(a)} U {eff^{+}(a)} */
+		Iterator<AtomicFormula> itrNew = successorState.iterator();
+		while(itrNew.hasNext()) {
+			Exp exp = itrNew.next();
+			if(groundedAction.getNegEff().contains(exp))
+				removeNeg.add(exp);
+		}
+		/** Set Operations */
+		successorState.removeAll(removeNeg);
+		successorState.addAll(groundedAction.getPosEff());
+		return successorState;
+	}
+
+	/**
+	 * Check if the successor state is the parent node.
+	 * @param newState
+	 * @return
+	 */
+	private boolean isSuccessorItsParent(ArrayList parentState, ArrayList<AtomicFormula> successorState) {
+		if(parentState.containsAll(successorState) && successorState.containsAll(parentState))
+			return true;
+		return false;
+	}
+
+}
+
+

@@ -1,0 +1,22 @@
+package bgu.dl.features.learning;
+
+import org.python.core.PyException;
+import org.python.util.PythonInterpreter;
+
+public class test
+{
+    public static void main(String[] args) throws PyException
+    {   
+        try
+        {
+            PythonInterpreter.initialize(System.getProperties(), System.getProperties(), new String[0]);
+            PythonInterpreter interp = new PythonInterpreter();
+            interp.execfile("C:/Documents and Settings/user/workspace/Intern Project/Proposals/Converted Proposals/Image-Extractor2.py");
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+    }
+}

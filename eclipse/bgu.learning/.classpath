@@ -2,5 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/External Packages/combinatoricslib-2.0.jar"/>
+	<classpathentry kind="lib" path="/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/External Packages/PDDL4J-v1.0/lib/pddl4j.jar"/>
+	<classpathentry kind="lib" path="/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/External Packages/jython-standalone-2.7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

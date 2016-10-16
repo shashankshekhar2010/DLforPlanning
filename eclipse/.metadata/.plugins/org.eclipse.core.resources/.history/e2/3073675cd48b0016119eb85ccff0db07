@@ -1,0 +1,11 @@
+package bgu.dl.features.collections;
+
+import pddl4j.exp.action.Action;
+
+public class intermediateAction extends Action {
+	public Action()
+	{
+		
+	}
+
+}
