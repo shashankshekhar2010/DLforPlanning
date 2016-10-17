@@ -1,5 +1,4 @@
 INDEX VERSION 1.126+/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/.metadata/.plugins/org.eclipse.jdt.core
 1585109301.index
 3990836373.index
-2994421348.index
 3599287592.index

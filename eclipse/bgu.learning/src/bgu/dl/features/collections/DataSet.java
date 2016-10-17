@@ -78,7 +78,7 @@ public class DataSet
 			header = header +"target \n";
 			writer.append(header);
 			// Infinite call, pass the main training file.
-			while (counter++ < 50000 && listParentChildSuccessors.size() > 0) 
+			while (counter++ < 50 && listParentChildSuccessors.size() > 0) 
 			{		
 				int randomIndex = randomNumber();
 				System.out.println(" counter : "+counter);
@@ -94,13 +94,12 @@ public class DataSet
 
 				listParentChildSuccessors.remove(randomIndex);		
 				ArrayList<ArrayList<ArrayList>> getParentChildSuccessors = getParentChildSuccessors(parentChildStates, writer, listOfPossiblePropositions);
-				/*for (int i = 0; i < getParentChildSuccessors.size(); i++) {
-					System.out.println(getParentChildSuccessors.get(i).size()); 
-				}*/
 				listParentChildSuccessors.addAll(getParentChildSuccessors);
 			}
 			writer.close();			
-		} catch (IOException e) {			
+		} 
+		catch (IOException e) 
+		{			
 			e.printStackTrace();
 		}
 	}
@@ -154,7 +153,9 @@ public class DataSet
 		try {
 			// System.out.println(data);
 			writer.append(data);
-		} catch (IOException e) {			
+		} 
+		catch (IOException e) 
+		{			
 			e.printStackTrace();
 		}
 		for (int i = 0; i < allPossibleStatetsInForwardDirection.size(); i++) 
@@ -182,7 +183,8 @@ public class DataSet
 		int target = 1000000;
 		ArrayList<Constant> listOfConstants = possibleGroundedLiterals.listOfConstants();
 		// a call to create a problem file with new initial state
-		generateProblemFile(initialState);		
+		generateProblemFile(initialState);
+		ArrayList<String> plan = new ArrayList<String>();
 		// a call to the fast downward python script
 		try {
 			String[] command = {
@@ -195,17 +197,47 @@ public class DataSet
 					"lazy_greedy(h, preferred=h)"
 			};
 			Process pro = Runtime.getRuntime().exec(command);
+
 			BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
 			String line = null;
 			String[] planDetails = null;
-			while ((line = in.readLine()) != null) {
+			boolean firstLine = false;
+			boolean secondLine = false;
+			int count = 0;
+			while ((line = in.readLine()) != null) 
+			{
+				// System.out.println(line);				
+				// condition for getting the plans
+				if(firstLine) count++;
+				if (line.contains("Actual search")) {
+					firstLine = true; 
+				}				
+				if (line.contains("Plan length")) { 
+					secondLine = true;
+				}
+				if(firstLine && count >= 1 && !secondLine) {					
+					String[] currAction = line.split(" ");
+					String str = "(";
+					for (int i = 0; i < currAction.length; i++) {
+						if (i < currAction.length-1) { 
+							if(i < currAction.length-2) 
+								str = str + currAction[i] + " ";
+							else
+								str = str + currAction[i];
+						}
+					}
+					str = str + ")";		
+					plan.add(str.toString());
+				}
+				// condition for getting the targets
 				if (line.contains("Plan length")) {
 					planDetails = line.split(" ");
-				}		
-			}
-			target = Integer.parseInt(planDetails[2]);
-			// System.out.println(target);
-		} catch (Exception e) {
+				}
+			}			
+			target = Integer.parseInt(planDetails[2]);			
+		} 
+		catch (Exception e) 
+		{
 			System.err.println("Error in writing the planner output in file !!");
 		}
 		return target;

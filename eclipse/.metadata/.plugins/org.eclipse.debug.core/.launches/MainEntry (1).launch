@@ -7,6 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="bgu.dl.features.learning.MainEntry"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/domain.pddl /home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/probBLOCKS-11-1.pddl"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/domain.pddl /home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="bgu.learning"/>
 </launchConfiguration>
