@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import pddl4j.PDDLObject;
@@ -50,7 +51,6 @@ public class DataSet
 		ArrayList dummy_state = new ArrayList();
 		initialParentChildStates.add(dummy_state);
 		initialParentChildStates.add(details.getInitialState());
-		this.listParentChildSuccessors.add(initialParentChildStates);  
 		@SuppressWarnings("rawtypes")
 		ArrayList initialState = this.details.getInitialState();
 		@SuppressWarnings("rawtypes")
@@ -65,22 +65,39 @@ public class DataSet
 		PossibleGroundedLiterals possibleGroundedLiterals = new PossibleGroundedLiterals(pddlObject);		
 		ArrayList<AtomicFormula> listOfPossiblePropositions = new ArrayList<>();
 		listOfPossiblePropositions = possibleGroundedLiterals.allPossibleLiteralsMayOccur();
+		this.listParentChildSuccessors.add(initialParentChildStates);
+		details.generateGroundedActions();
+		// Call to prepare the data set
 		try {
 			file = new File("/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/train.txt");
-			// /home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl
 			writer = new BufferedWriter(new FileWriter(file));
 			String header = "";
 			for (int i = 0; i < listOfPossiblePropositions.size(); i++) {
 				header = header + listOfPossiblePropositions.get(i) + "\t";				
 			}
+			header = header +"target \n";
 			writer.append(header);
 			// Infinite call, pass the main training file.
-			while (counter++ < 1000000 && listParentChildSuccessors.size() > 0) 
+			while (counter++ < 50000 && listParentChildSuccessors.size() > 0) 
 			{		
-				int randomIndex = randomNumber()-1;
-				ArrayList<ArrayList> parentChildStates = listParentChildSuccessors.get(randomIndex);
-				listParentChildSuccessors.remove(randomIndex);
-				listParentChildSuccessors.addAll(getParentChildSuccessors(parentChildStates, writer, listOfPossiblePropositions));
+				int randomIndex = randomNumber();
+				System.out.println(" counter : "+counter);
+				ArrayList<ArrayList> parentChildStates = listParentChildSuccessors.get(randomIndex); 
+				if(parentChildStates.size()<2)
+				{
+					System.out.println("Error in parent child generation in the forward direction..!"); 
+					System.out.println(listParentChildSuccessors.get(randomIndex).get(0));
+					System.out.println(listParentChildSuccessors.get(randomIndex).get(1));
+					System.out.println(parentChildStates.get(0).toString());
+					System.out.println(parentChildStates.get(1).toString());
+				}
+
+				listParentChildSuccessors.remove(randomIndex);		
+				ArrayList<ArrayList<ArrayList>> getParentChildSuccessors = getParentChildSuccessors(parentChildStates, writer, listOfPossiblePropositions);
+				/*for (int i = 0; i < getParentChildSuccessors.size(); i++) {
+					System.out.println(getParentChildSuccessors.get(i).size()); 
+				}*/
+				listParentChildSuccessors.addAll(getParentChildSuccessors);
 			}
 			writer.close();			
 		} catch (IOException e) {			
@@ -94,8 +111,8 @@ public class DataSet
 	 */
 	private int randomNumber() { 
 		Random r = new Random();
-		int Low = 1;
-		int High = initialParentChildStates.size();
+		int Low = 0;
+		int High = listParentChildSuccessors.size();
 		int Result = r.nextInt(High-Low) + Low;
 		return Result;
 	}
@@ -107,16 +124,16 @@ public class DataSet
 	 */
 	private ArrayList<ArrayList<ArrayList>> getParentChildSuccessors(ArrayList<ArrayList> parentChildStates, Writer writer, ArrayList<AtomicFormula> listOfPossiblePropositions) 
 	{
+		// System.out.println("\t" + parentChildStates.size()); 
 		ArrayList<ArrayList<ArrayList>> generateParentChildSuccessors = new ArrayList<ArrayList<ArrayList>>();
 		ArrayList parentState = parentChildStates.get(0);
 		ArrayList childState = parentChildStates.get(1); 
+		ArrayList<ArrayList> newParentChildStates = null;
 
-		ArrayList<ArrayList> newParentChildStates = new ArrayList<ArrayList>();
-		
 		@SuppressWarnings("rawtypes")
 		ArrayList<ArrayList> allPossibleStatetsInForwardDirection = new ArrayList<>();
 		allPossibleStatetsInForwardDirection = allPossibleStatetsInForwardDirection(childState);
-		
+		// System.out.println(allPossibleStatetsInForwardDirection.size()); 
 		/**
 		 * Keep in mind that, training data points will be computed using each child state.
 		 * Call to the Fast Downward by passing the child state, and
@@ -124,24 +141,32 @@ public class DataSet
 		 */
 		PossibleGroundedLiterals possibleGroundedLiterals = new PossibleGroundedLiterals(pddlObject);		
 		ArrayList<Integer> listOfIntegersCorrespondingToLiterals = generateDataset(childState, listOfPossiblePropositions);
+		// this target is not generating properly
 		int target = targetByFastDownward(childState, this.details.getGoalState(), possibleGroundedLiterals);
+
 		listOfIntegersCorrespondingToLiterals.add(target);
 		// write each training point into a file
 		String data = "";
 		for (int i = 0; i < listOfIntegersCorrespondingToLiterals.size(); i++) {
-			data = data +	"	"+listOfIntegersCorrespondingToLiterals.get(i);
-		}
+			data = data +listOfIntegersCorrespondingToLiterals.get(i) + "\t";
+		}		
+		data = data + "\n";
 		try {
+			// System.out.println(data);
 			writer.append(data);
 		} catch (IOException e) {			
 			e.printStackTrace();
 		}
-		for (int i = 0; i < allPossibleStatetsInForwardDirection.size(); i++) {
+		for (int i = 0; i < allPossibleStatetsInForwardDirection.size(); i++) 
+		{
 			if(! isSuccessorItsParentState(parentState,allPossibleStatetsInForwardDirection.get(i))) {
-				newParentChildStates.set(0, childState);
-				newParentChildStates.set(1, allPossibleStatetsInForwardDirection.get(i));
-			}
-			generateParentChildSuccessors.add(newParentChildStates);			
+				// changed on Oct 17 - Shashank
+				newParentChildStates = new ArrayList<ArrayList>();
+				newParentChildStates.add(childState);
+				newParentChildStates.add(allPossibleStatetsInForwardDirection.get(i));
+				// System.out.println(newParentChildStates.size()); 
+				generateParentChildSuccessors.add(newParentChildStates);
+			}						
 		}
 		return generateParentChildSuccessors;
 	}
@@ -152,18 +177,18 @@ public class DataSet
 	 * @param goalState
 	 * @return returns the target value;
 	 */
-	private Integer targetByFastDownward(ArrayList initialState, ArrayList goalState, PossibleGroundedLiterals possibleGroundedLiterals) {
+	private Integer targetByFastDownward(ArrayList initialState, ArrayList goalState, PossibleGroundedLiterals possibleGroundedLiterals) 
+	{
 		int target = 1000000;
 		ArrayList<Constant> listOfConstants = possibleGroundedLiterals.listOfConstants();
 		// a call to create a problem file with new initial state
-		generateProblemFile(initialState);
-
+		generateProblemFile(initialState);		
 		// a call to the fast downward python script
 		try {
 			String[] command = {
 					"/home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/fast-downward.py",
-					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/domain.pddl",
-					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/probBLOCKS-4-1.pddl",
+					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/domain.pddl",
+					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl",
 					"--heuristic",
 					"h=ff()",
 					"--search",
@@ -178,8 +203,8 @@ public class DataSet
 					planDetails = line.split(" ");
 				}		
 			}
-			target = Integer.getInteger(planDetails[1]);
-
+			target = Integer.parseInt(planDetails[2]);
+			// System.out.println(target);
 		} catch (Exception e) {
 			System.err.println("Error in writing the planner output in file !!");
 		}
@@ -190,9 +215,50 @@ public class DataSet
 	 * Will write a new initial state 
 	 * @param initialState
 	 * @param goalState
-	 * @param listOfConstants
-	 */
-	private void generateProblemFile(ArrayList initialState) {
+	 * @param listOfConstants */
+	private void generateProblemFile(ArrayList initialState) 
+	{ 
+		List<String> lines = new ArrayList<String>();
+		String line = null;
+		try {
+			File f1 = new File("/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl");
+			FileReader fr = new FileReader(f1);
+			BufferedReader br = new BufferedReader(fr);
+			String str ="(:init ";
+			for (int i = 0; i < initialState.size(); i++) {
+				str = str + initialState.get(i).toString();
+			}
+			str = str + ")";
+			while ((line = br.readLine()) != null) {
+				if (line.contains(":init") || line.contains(":INIT") )
+				{
+					line = line.replace(line, str);
+				}
+				lines.add(line);
+			}
+			fr.close();
+			br.close();
+
+			FileWriter fw = new FileWriter(f1);
+			BufferedWriter out = new BufferedWriter(fw);
+			for(String s : lines)
+			{
+				out.write(s);
+				out.write("\n");
+			}
+			out.flush();
+			out.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/**
+	 * Will write a new initial state 
+	 * @param initialState
+	 * @param goalState
+	 * @param listOfConstants */
+	private void generateProblemFileOld(ArrayList initialState) {
 		String oldFileName = "/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl";
 		String newState = "";
 		for (int i = 0; i < initialState.size(); i++) {
@@ -222,37 +288,52 @@ public class DataSet
 			System.err.println("Exception in updating the initial state");
 		}
 	}
+
 	// Calling to feed -1, 0, 1 corresponding to each entry in the list of proposition
 	private ArrayList<Integer> generateDataset(ArrayList initialState, ArrayList<AtomicFormula> listOfPossiblePropositions) 
 	{
-		ArrayList<Integer> listOfInt = new ArrayList<>(listOfPossiblePropositions.size());
+		ArrayList<Integer> listOfInt = new ArrayList<Integer>();
+		for (int i = 0; i < listOfPossiblePropositions.size(); i++) {
+			listOfInt.add(0);
+		}
 		for (int i = 0; i < listOfPossiblePropositions.size(); i++) {
 			AtomicFormula af = listOfPossiblePropositions.get(i);
 			int val = 0; 
 			for (int j = 0; j < initialState.size(); j++) {
 				AtomicFormula fromInit = (AtomicFormula)initialState.get(j);
 				if (fromInit.getClass().equals(AtomicFormula.class)) {
-					if (fromInit.toString().equals(af.toString()))
+					if (fromInit.toString().equals(af.toString())) {
 						val = 1;
-					break;
+						break;
+					}
 				} else if (fromInit.getClass().equals(NotAtomicFormula.class)){
-					if (fromInit.toString().equals(af.toString()))
+					if (fromInit.toString().equals(af.toString())) {
 						val = -1;
-					break;
+						break;
+					}
 				}
 			}
-			listOfInt.set(i, val);
+			try {
+				listOfInt.set(i, val);
+				// System.out.println("how many times?");
+			} catch (Exception e) {
+				System.out.println("error - updating values!");	
+			}
 		}
 		return listOfInt;
 	}
 
 	private ArrayList<ArrayList> allPossibleStatetsInForwardDirection(ArrayList childNode) {
-		ArrayList<PossibleGroundedActions> getApplicableActions = getApplicableActions(childNode);
+		ArrayList<PossibleGroundedActions> getApplicableActions = new ArrayList<PossibleGroundedActions>();
+		getApplicableActions = getApplicableActions(childNode);
 		if(getApplicableActions.size() == 0) {
 			System.out.println("No actions are appicable on this child node: returning null");
 			return null;
 		}		
 		ArrayList<ArrayList> listOfSuccessorStates = new ArrayList<ArrayList>();
+		for (int i = 0; i < getApplicableActions.size(); i++) {
+			getApplicableActions.get(i).printGroundedAction();
+		}
 		for (int i = 0; i < getApplicableActions.size(); i++) {
 			listOfSuccessorStates.add(applyAction(getApplicableActions.get(i), childNode)); 
 		}
@@ -265,15 +346,16 @@ public class DataSet
 	 * @return applicable actions
 	 */
 	@SuppressWarnings("unused")
-	private ArrayList<PossibleGroundedActions> getApplicableActions(ArrayList<AtomicFormula> childNode) {
+	private ArrayList<PossibleGroundedActions> getApplicableActions(ArrayList<AtomicFormula> childNode) 
+	{
 		ArrayList<PossibleGroundedActions> applicableActions = new ArrayList<PossibleGroundedActions>();
-		
-		details.generateGroundedActions();
-		
-		applicableActions.addAll(details.getgActions());
+		groundedActions = new ArrayList<PossibleGroundedActions>();
+		groundedActions.addAll(details.getgActions());
+		// applicableActions.addAll(details.getgActions());
 		@SuppressWarnings("rawtypes")
 		Iterator itr = groundedActions.iterator();
-		while(itr.hasNext()) {
+		while(itr.hasNext()) 
+		{
 			PossibleGroundedActions ga = (PossibleGroundedActions) itr.next();
 			ArrayList<AtomicFormula> preCond = ga.getPreCond();			
 			if(isSubsetOf(preCond,childNode)) {
@@ -300,13 +382,15 @@ public class DataSet
 	 * @return A successor state
 	 */
 	@SuppressWarnings("unused")
-	private ArrayList<AtomicFormula> applyAction(PossibleGroundedActions groundedAction, ArrayList<AtomicFormula> childNode) {
+	private ArrayList<AtomicFormula> applyAction(PossibleGroundedActions groundedAction, ArrayList<AtomicFormula> childNode) 
+	{
 		ArrayList<AtomicFormula> successorState = new ArrayList<AtomicFormula>();
-		// groundedAction.printGroundedAction();
 		successorState.addAll(childNode);
 		ArrayList<Exp> removeNeg = new ArrayList<Exp>();
+		// System.out.println(childNode.toString());
+		groundedAction.printGroundedAction();
 
-		/** Formula: S_{new} = {S_{curr} - stt^{-}(a)} U {eff^{+}(a)} */
+		/** Formula: S_{new} = {S_{curr} - ett^{-}(a)} U {eff^{+}(a)} */
 		Iterator<AtomicFormula> itrNew = successorState.iterator();
 		while(itrNew.hasNext()) {
 			Exp exp = itrNew.next();
@@ -316,6 +400,7 @@ public class DataSet
 		/** Set Operations */
 		successorState.removeAll(removeNeg);
 		successorState.addAll(groundedAction.getPosEff());
+		// System.out.println(successorState.toString());
 		return successorState;
 	}
 

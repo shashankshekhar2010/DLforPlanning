@@ -303,7 +303,8 @@ public class ProblemDetails
 					gActions.add(GA);
 				}				
 			}
-		}		
+		}	
+		// return gActions;
 	}
 
 	private ArrayList<ArrayList<Constant>> generateCombinations(ArrayList constants, int noFreeVar) 

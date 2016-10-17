@@ -34,6 +34,7 @@ public class PossibleGroundedActions {
 		for (Term p : a.getParameters()) {
 			af.add((Constant)getTheta().getBinding((Variable) p));
 		}		
+		// System.out.println("action : " + af.toString());
 	}
 
 	public AtomicFormula getGA() {

@@ -22,7 +22,7 @@ public class test1
         {
             PythonInterpreter.initialize(System.getProperties(), System.getProperties(), new String[0]);
             PythonInterpreter interp = new PythonInterpreter();
-            interp.execfile("/home/Dropbox/src/features/learning/ss-py.py,1");
+            interp.execfile("/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/ss-py.py,1");
         }
         catch(Exception e)
         {
@@ -62,7 +62,7 @@ public class test1
 				}
 			}
 			// Writing each line to a file
-			// System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("/home/Dropbox/eclipse/features/learning/ss")), true));
+			// System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/ss")), true));
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
 			while ((line = in.readLine()) != null) {
@@ -73,10 +73,20 @@ public class test1
 
 		 */
 		try{
-			String[] str = {"/home/Documents/Research-Edited/Fast-Downward/fast-downward.py",
+			/*String[] str = {"/home/Documents/Research-Edited/Fast-Downward/fast-downward.py",
 					"/home/Dropbox/IPC-2/Blocks/Untyped/domain.pddl",
 					"/home/Dropbox/IPC-2/Blocks/Untyped/probBLOCKS-4-0.pddl",
-					"--search \"lazy_greedy(ff(), preferred=ff())\""};			
+					"--search \"lazy_greedy(ff(), preferred=ff())\""};*/
+			String[] str = {
+					"/home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/fast-downward.py",
+					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/domain.pddl",
+					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl",
+					"--heuristic",
+					"h=ff()",
+					"--search",
+					"lazy_greedy(h, preferred=h)"
+			};
+
 			Process p1 = Runtime.getRuntime().exec(str);
 			/*BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(p1.getOutputStream()));
 			writer.write("shekhar22!");
@@ -87,8 +97,18 @@ public class test1
 			//Process process = probuilder.start(); 
 			BufferedReader in = new BufferedReader(new InputStreamReader(p1.getInputStream()));
 			String line;
+			/*while ((line = in.readLine()) != null) 
+			{
+				System.out.println(line);		
+			}*/
+			System.out.println("hi");
+			String[] planDetails = null;
 			while ((line = in.readLine()) != null) {
-				System.out.println(line);		}
+				if (line.contains("Plan length:")) {
+					planDetails = line.split(" ");
+					System.out.println("hello " + planDetails[2]);
+				}		
+			}
 		}catch(Exception e){
 
 		}

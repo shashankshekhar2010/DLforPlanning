@@ -1,5 +1,5 @@
 package bgu.dl.features.test;
-	
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -78,14 +78,14 @@ public class test
 					"/home/Dropbox/IPC-2/Blocks/Untyped/probBLOCKS-4-0.pddl",
 					"--search \"lazy_greedy(ff(), preferred=ff())\""};*/
 			String[] str = {
-					  "/home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/fast-downward.py",
-					  "/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/domain.pddl",
-					  "/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/probBLOCKS-4-1.pddl",
-					  "--heuristic",
-					  "h=ff()",
-					  "--search",
-					  "lazy_greedy(h, preferred=h)"
-					};
+					"/home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/fast-downward.py",
+					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/domain.pddl",
+					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/IPC-2/Blocks/Untyped/probBLOCKS-4-1.pddl",
+					"--heuristic",
+					"h=ff()",
+					"--search",
+					"lazy_greedy(h, preferred=h)"
+			};
 
 			Process p1 = Runtime.getRuntime().exec(str);
 			/*BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(p1.getOutputStream()));
@@ -97,8 +97,10 @@ public class test
 			//Process process = probuilder.start(); 
 			BufferedReader in = new BufferedReader(new InputStreamReader(p1.getInputStream()));
 			String line;
-			while ((line = in.readLine()) != null) {
-				System.out.println(line);		}
+			while ((line = in.readLine()) != null) 
+			{
+				System.out.println(line);		
+			}
 		}catch(Exception e){
 
 		}

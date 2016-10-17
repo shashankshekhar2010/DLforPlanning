@@ -84,9 +84,12 @@ public class MainEntry {
 			ProblemDetails details = new ProblemDetails(obj);
 			DataSet set = new DataSet();
 			set.dataSet(details, obj);
-			try {
+			try 
+			{
 				set.callForDatasetGeneration();
-			} catch (Exception e) {
+			} 
+			catch (Exception e) 
+			{
 				System.err.println("--------------- Error in main call -----------------\n"); 
 				e.printStackTrace();  
 			}			
