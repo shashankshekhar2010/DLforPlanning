@@ -445,7 +445,7 @@ public class DataSet
 		if(parentState.containsAll(successorState) && successorState.containsAll(parentState))
 			return true;
 		return false;
-	}
+	} 
 }
 
 
