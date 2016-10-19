@@ -22,7 +22,7 @@
 
   (:action put-down
 	     :parameters (?x)
-	     :precondition (and (holding ?x))
+	     :precondition (holding ?x)
 	     :effect
 	     (and (not (holding ?x))
 		   (clear ?x)

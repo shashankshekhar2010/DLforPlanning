@@ -45,9 +45,7 @@ public class PossibleGroundedActions {
 		return af;
 	}
 
-	@SuppressWarnings("unused")
 	private void printList(ArrayList<AtomicFormula> list) {
-		@SuppressWarnings("rawtypes")
 		Iterator itr = list.iterator();
 		while(itr.hasNext()) {
 			System.out.print(itr.next()+"\t");

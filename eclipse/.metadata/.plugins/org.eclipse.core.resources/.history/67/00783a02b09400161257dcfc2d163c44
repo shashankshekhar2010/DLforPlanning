@@ -264,7 +264,7 @@ public class FplanGenerator {
 			//goalFound  = true;
 			System.out.println("Goal state reached!!\nPlan found:");
 			printList(plan);			
-			System.out.println(plan.size() + " actions in plan!");
+			System.out.println(plan.size()+" actions in plan!");
 			return;
 		}
 
