@@ -441,7 +441,8 @@ public class DataSet
 	 * @param newState
 	 * @return
 	 */
-	private boolean isSuccessorItsParentState(ArrayList parentState, ArrayList<AtomicFormula> successorState) {
+	private boolean isSuccessorItsParentState(ArrayList parentState, ArrayList<AtomicFormula> successorState) 
+	{
 		if(parentState.containsAll(successorState) && successorState.containsAll(parentState))
 			return true;
 		return false;
