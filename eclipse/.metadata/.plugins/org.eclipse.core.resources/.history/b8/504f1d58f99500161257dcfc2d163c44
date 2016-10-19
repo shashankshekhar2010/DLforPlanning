@@ -72,7 +72,8 @@ public class PossibleGroundedLiterals
 	 * This function generates combinations of constants, depending on the number selected (nCr).
 	 * @param constants
 	 * @param noOfFreeVar
-	 * @return All combinations of constants*/
+	 * @return
+	 */
 	private ArrayList<ArrayList<Constant>> generateAllCombinations(ArrayList constants, int noOfFreeVar)  
 	{
 		ArrayList<ArrayList<Constant>> combi = new ArrayList<ArrayList<Constant>>();
