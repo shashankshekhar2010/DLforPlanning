@@ -33,8 +33,7 @@ public class PossibleGroundedActions {
 		AtomicFormula af = new AtomicFormula(a.getName());
 		for (Term p : a.getParameters()) {
 			af.add((Constant)getTheta().getBinding((Variable) p));
-		}		
-		// System.out.println("action : " + af.toString());
+		}	
 	}
 
 	public AtomicFormula getGA() {
@@ -92,5 +91,5 @@ public class PossibleGroundedActions {
 
 	public void setNegEff(ArrayList<AtomicFormula> negEff) {
 		this.negEff = negEff;
-	}
+	}	
 }

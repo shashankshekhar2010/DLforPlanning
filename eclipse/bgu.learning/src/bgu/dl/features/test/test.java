@@ -70,7 +70,6 @@ public class test
 			}
 		}
 		catch(Exception e){}
-
 		 */
 		try{
 			/*String[] str = {"/home/Documents/Research-Edited/Fast-Downward/fast-downward.py",
@@ -88,8 +87,9 @@ public class test
 			};
 
 			Process p1 = Runtime.getRuntime().exec(str);
-			/*BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(p1.getOutputStream()));
-			writer.write("shekhar22!");
+			/*
+			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(p1.getOutputStream()));
+			writer.write("");
 			writer.newLine();
 			writer.close();*/
 			//Process p = Runtime.getRuntime().exec(str, null, null);

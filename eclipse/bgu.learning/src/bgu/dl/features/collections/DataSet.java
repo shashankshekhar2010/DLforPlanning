@@ -83,6 +83,7 @@ public class DataSet
 				int randomIndex = randomNumber();
 				System.out.println(" counter : "+counter);
 				ArrayList<ArrayList> parentChildStates = listParentChildSuccessors.get(randomIndex); 
+
 				if(parentChildStates.size()<2)
 				{
 					System.out.println("Error in parent child generation in the forward direction..!"); 
@@ -98,16 +99,14 @@ public class DataSet
 			}
 			writer.close();			
 		} 
-		catch (IOException e) 
-		{			
+		catch (IOException e) {			
 			e.printStackTrace();
 		}
 	}
 
 	/**
 	 * Random Number Generator
-	 * @return an index
-	 */
+	 * @return an index */
 	private int randomNumber() { 
 		Random r = new Random();
 		int Low = 0;
@@ -121,6 +120,7 @@ public class DataSet
 	 * @return a list of two states (parent and its child)
 	 * A state is also represented in form of a list
 	 */
+	@SuppressWarnings("unchecked")
 	private ArrayList<ArrayList<ArrayList>> getParentChildSuccessors(ArrayList<ArrayList> parentChildStates, Writer writer, ArrayList<AtomicFormula> listOfPossiblePropositions) 
 	{
 		// System.out.println("\t" + parentChildStates.size()); 
@@ -132,36 +132,35 @@ public class DataSet
 		@SuppressWarnings("rawtypes")
 		ArrayList<ArrayList> allPossibleStatetsInForwardDirection = new ArrayList<>();
 		allPossibleStatetsInForwardDirection = allPossibleStatetsInForwardDirection(childState);
+
 		// System.out.println(allPossibleStatetsInForwardDirection.size()); 
 		/**
 		 * Keep in mind that, training data points will be computed using each child state.
-		 * Call to the Fast Downward by passing the child state, and
-		 * the goal state. 
-		 */
+		 * Call to the Fast Downward by passing the child state, and the goal state. 
+		 * */
 		PossibleGroundedLiterals possibleGroundedLiterals = new PossibleGroundedLiterals(pddlObject);		
 		ArrayList<Integer> listOfIntegersCorrespondingToLiterals = generateDataset(childState, listOfPossiblePropositions);
-		// this target is not generating properly
+		// This target is not generating properly
 		int target = targetByFastDownward(childState, this.details.getGoalState(), possibleGroundedLiterals);
 
 		listOfIntegersCorrespondingToLiterals.add(target);
-		// write each training point into a file
+		// Write each training point into a file
 		String data = "";
 		for (int i = 0; i < listOfIntegersCorrespondingToLiterals.size(); i++) {
 			data = data +listOfIntegersCorrespondingToLiterals.get(i) + "\t";
 		}		
 		data = data + "\n";
 		try {
-			// System.out.println(data);
 			writer.append(data);
 		} 
-		catch (IOException e) 
-		{			
+		catch (IOException e) {			
 			e.printStackTrace();
 		}
+
 		for (int i = 0; i < allPossibleStatetsInForwardDirection.size(); i++) 
 		{
-			if(! isSuccessorItsParentState(parentState,allPossibleStatetsInForwardDirection.get(i))) {
-				// changed on Oct 17 - Shashank
+			if(! isSuccessorItsParentState(parentState,	allPossibleStatetsInForwardDirection.get(i))) {
+				// Changed on October 17, 2016
 				newParentChildStates = new ArrayList<ArrayList>();
 				newParentChildStates.add(childState);
 				newParentChildStates.add(allPossibleStatetsInForwardDirection.get(i));
@@ -173,21 +172,23 @@ public class DataSet
 	}
 
 	/**
-	 * Function call to the fast downward planner | keep in mind that we will kill this call after certain time (say 30 minutes). 
+	 * Function call to the fast-downward (FD) planner | keep in mind that we will kill this call after certain time (say 30 minutes). 
 	 * @param initialState
 	 * @param goalState
-	 * @return returns the target value;
-	 */
+	 * @return returns the target value, basically, the plan length found by the FD planner.
+	 * */
 	private Integer targetByFastDownward(ArrayList initialState, ArrayList goalState, PossibleGroundedLiterals possibleGroundedLiterals) 
 	{
 		int target = 1000000;
 		ArrayList<Constant> listOfConstants = possibleGroundedLiterals.listOfConstants();
-		// a call to create a problem file with new initial state
+		// a call to create a problem file with new initial state.
 		generateProblemFile(initialState);
 		ArrayList<String> plan = new ArrayList<String>();
-		// a call to the fast downward python script
-		try {
-			String[] command = {
+		// a call to the fast downward through python script.
+		try 
+		{
+			String[] command = 
+				{
 					"/home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/fast-downward.py",
 					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/domain.pddl",
 					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl",
@@ -195,9 +196,9 @@ public class DataSet
 					"h=ff()",
 					"--search",
 					"lazy_greedy(h, preferred=h)"
-			};
-			Process pro = Runtime.getRuntime().exec(command);
+				};
 
+			Process pro = Runtime.getRuntime().exec(command);
 			BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
 			String line = null;
 			String[] planDetails = null;
@@ -206,15 +207,14 @@ public class DataSet
 			int count = 0;
 			while ((line = in.readLine()) != null) 
 			{
-				// System.out.println(line);				
-				// condition for getting the plans
-				if(firstLine) count++;
-				if (line.contains("Actual search")) {
-					firstLine = true; 
-				}				
-				if (line.contains("Plan length")) { 
+				// Condition for getting the plans
+				if(firstLine) 
+					count++;
+				if (line.contains("Actual search")) 
+					firstLine = true;
+				if (line.contains("Plan length"))  
 					secondLine = true;
-				}
+
 				if(firstLine && count >= 1 && !secondLine) {					
 					String[] currAction = line.split(" ");
 					String str = "(";
@@ -315,7 +315,7 @@ public class DataSet
 				} 
 				bw.write(line);
 			}              
-		}     //end try
+		}     
 		catch (Exception e) {
 			System.err.println("Exception in updating the initial state");
 		}
@@ -323,14 +323,18 @@ public class DataSet
 
 	// Calling to feed -1, 0, 1 corresponding to each entry in the list of proposition
 	private ArrayList<Integer> generateDataset(ArrayList initialState, ArrayList<AtomicFormula> listOfPossiblePropositions) 
-	{
+	{		
 		ArrayList<Integer> listOfInt = new ArrayList<Integer>();
+		// The default value as per the closed world assumptions is -1
 		for (int i = 0; i < listOfPossiblePropositions.size(); i++) {
-			listOfInt.add(0);
+			listOfInt.add(-1);
 		}
-		for (int i = 0; i < listOfPossiblePropositions.size(); i++) {
+
+		for (int i = 0; i < listOfPossiblePropositions.size(); i++) 
+		{
 			AtomicFormula af = listOfPossiblePropositions.get(i);
-			int val = 0; 
+			// Considering the closed world assumptions, we give a default value -1 to each literal.
+			int val = -1;
 			for (int j = 0; j < initialState.size(); j++) {
 				AtomicFormula fromInit = (AtomicFormula)initialState.get(j);
 				if (fromInit.getClass().equals(AtomicFormula.class)) {
@@ -349,19 +353,22 @@ public class DataSet
 				listOfInt.set(i, val);
 				// System.out.println("how many times?");
 			} catch (Exception e) {
-				System.out.println("error - updating values!");	
+				System.out.println("error - updating values : call - generateDataset()");	
 			}
 		}
 		return listOfInt;
 	}
 
-	private ArrayList<ArrayList> allPossibleStatetsInForwardDirection(ArrayList childNode) {
+	private ArrayList<ArrayList> allPossibleStatetsInForwardDirection(ArrayList childNode) 
+	{
 		ArrayList<PossibleGroundedActions> getApplicableActions = new ArrayList<PossibleGroundedActions>();
 		getApplicableActions = getApplicableActions(childNode);
+
 		if(getApplicableActions.size() == 0) {
 			System.out.println("No actions are appicable on this child node: returning null");
 			return null;
 		}		
+		
 		ArrayList<ArrayList> listOfSuccessorStates = new ArrayList<ArrayList>();
 		for (int i = 0; i < getApplicableActions.size(); i++) {
 			getApplicableActions.get(i).printGroundedAction();
@@ -375,11 +382,9 @@ public class DataSet
 	/**
 	 * Generate all applicable actions
 	 * @param childNode
-	 * @return applicable actions
-	 */
+	 * @return applicable actions */
 	@SuppressWarnings("unused")
-	private ArrayList<PossibleGroundedActions> getApplicableActions(ArrayList<AtomicFormula> childNode) 
-	{
+	private ArrayList<PossibleGroundedActions> getApplicableActions(ArrayList<AtomicFormula> childNode) {
 		ArrayList<PossibleGroundedActions> applicableActions = new ArrayList<PossibleGroundedActions>();
 		groundedActions = new ArrayList<PossibleGroundedActions>();
 		groundedActions.addAll(details.getgActions());
@@ -398,55 +403,48 @@ public class DataSet
 	}
 
 	/**
-	 * Check whether state g is a subset of current state curr
-	 * @param g
-	 * @param cur
-	 * @return
-	 */
-	private boolean isSubsetOf(ArrayList<AtomicFormula> g, ArrayList<AtomicFormula> cur) {
-		return(cur.containsAll(g));		
+	 * Check whether state g is a subset of current state currentState
+	 * @param goalState
+	 * @param currentState
+	 * @return status on whether g is subset is current. */
+	private boolean isSubsetOf(ArrayList<AtomicFormula> goalState, ArrayList<AtomicFormula> currentState) {
+		return(currentState.containsAll(goalState));		
 	}
 
 	/**
 	 * Applies a grounded action on the given state
 	 * @param groundedAction
 	 * @param childNode
-	 * @return A successor state
-	 */
-	@SuppressWarnings("unused")
-	private ArrayList<AtomicFormula> applyAction(PossibleGroundedActions groundedAction, ArrayList<AtomicFormula> childNode) 
-	{
+	 * @return a successor state */
+	private ArrayList<AtomicFormula> applyAction(PossibleGroundedActions groundedAction, ArrayList<AtomicFormula> childNode) {
 		ArrayList<AtomicFormula> successorState = new ArrayList<AtomicFormula>();
 		successorState.addAll(childNode);
 		ArrayList<Exp> removeNeg = new ArrayList<Exp>();
-		// System.out.println(childNode.toString());
 		groundedAction.printGroundedAction();
 
-		/** Formula: S_{new} = {S_{curr} - ett^{-}(a)} U {eff^{+}(a)} */
+		/** Formula: S_{new} = {S_{current} - effect^{-}(a)} U {effect^{+}(a)} */
 		Iterator<AtomicFormula> itrNew = successorState.iterator();
 		while(itrNew.hasNext()) {
 			Exp exp = itrNew.next();
 			if(groundedAction.getNegEff().contains(exp))
 				removeNeg.add(exp);
 		}
+		
 		/** Set Operations */
 		successorState.removeAll(removeNeg);
-		successorState.addAll(groundedAction.getPosEff());
-		// System.out.println(successorState.toString());
+		successorState.addAll(groundedAction.getPosEff());		
 		return successorState;
 	}
 
 	/**
 	 * Check if the successor state is the parent node.
 	 * @param newState
-	 * @return
-	 */
-	private boolean isSuccessorItsParentState(ArrayList parentState, ArrayList<AtomicFormula> successorState) 
+	 * @return status on isSuccessorItsParentState() */
+	private boolean isSuccessorItsParentState(ArrayList<AtomicFormula> parentState, ArrayList<AtomicFormula> successorState) 
 	{
 		if(parentState.containsAll(successorState) && successorState.containsAll(parentState))
 			return true;
 		return false;
 	} 
 }
-
 

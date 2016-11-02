@@ -156,13 +156,13 @@ end_mutex_group
 begin_state
 1
 0
-0
+1
 0
 0
 4
 1
 4
-4
+3
 end_state
 begin_goal
 3

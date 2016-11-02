@@ -21,8 +21,7 @@ public class MainEntry {
 	 * BGU of the Negev
 	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) throws FileNotFoundException 
-	{
+	public static void main(String[] args) throws FileNotFoundException {
 		System.out.println("--------------");
 		System.out.println("  Hello BGU   ");
 		System.out.println("--------------");
@@ -56,8 +55,8 @@ public class MainEntry {
 			System.exit(0);
 		}
 
-		//Creates an instance of the java pddl parser
-		System.out.println("Parser is placed now!");
+		// Creates an instance of the java pddl parser
+		System.out.println("Parser is placed now!"); 
 		Parser parser = new Parser(properties);		
 
 		// Domain domainRelaxed = parser.parse(new File(args[0]));			
