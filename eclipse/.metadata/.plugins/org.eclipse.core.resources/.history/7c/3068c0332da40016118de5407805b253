@@ -140,7 +140,7 @@ public class DataSet
 		PossibleGroundedLiterals possibleGroundedLiterals = new PossibleGroundedLiterals(pddlObject);		
 		PlanDetails planDetails = targetByFastDownward(childState, this.details.getGoalState(), possibleGroundedLiterals);
 		int target = planDetails.getPlanLength();
-		ArrayList<String> plan = planDetails.getGeneratedRealPlan();  
+		ArrayList<String> plan = planDetails.getGeneratedRealPlan(); 
 
 		/** Code for bootstrapping! */
 		int max = plan.size();
