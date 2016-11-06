@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Properties;
 
-import bgu.dl.features.collections.DataSet;
+import bgu.dl.features.collections.DataSet_Type_1;
+import bgu.dl.features.collections.DataSet_Type_2;
 
 import pddl4j.Domain;
 import pddl4j.ErrorManager;
@@ -81,7 +82,8 @@ public class MainEntry {
 
 			// Populate the details class with provided information
 			ProblemDetails details = new ProblemDetails(obj);
-			DataSet set = new DataSet();
+			// DataSet_Type_1 set = new DataSet_Type_1();
+			DataSet_Type_2 set =  new DataSet_Type_2();
 			set.dataSet(details, obj);
 			try 
 			{
