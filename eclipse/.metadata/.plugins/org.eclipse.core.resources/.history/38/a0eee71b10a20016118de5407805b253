@@ -1,0 +1,20 @@
+package bgu.dl.features.test;
+
+public class hello {
+	int x = 3;
+	public void voi1() {
+		x = 5;
+	}
+	public void voi2() {
+		x ++;
+	}
+	public static void main(String[] args) {
+		hello h = new hello();
+		System.out.println(h.x);
+		h.voi1();
+		System.out.println(h.x);
+		h.voi2();
+		System.out.println(h.x);
+	}
+
+}

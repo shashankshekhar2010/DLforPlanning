@@ -1,0 +1,17 @@
+package bgu.dl.features.test;
+
+public class hello {
+
+	int x = 3;
+	public void voi1() {
+		x = 5;
+	}
+	public void voi2() {
+		x ++;
+	}
+	public static void main(String[] args) {
+		hello hello = new hello();
+
+	}
+
+}

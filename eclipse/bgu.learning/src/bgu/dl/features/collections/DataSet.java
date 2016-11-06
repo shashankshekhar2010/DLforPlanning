@@ -81,7 +81,7 @@ public class DataSet
 			while (counter++ < 50 && listParentChildSuccessors.size() > 0) 
 			{		
 				int randomIndex = randomNumber();
-				System.out.println(" counter : "+counter);
+				System.out.println("counter : " + counter);
 				ArrayList<ArrayList> parentChildStates = listParentChildSuccessors.get(randomIndex); 
 
 				if(parentChildStates.size()<2)
@@ -136,27 +136,48 @@ public class DataSet
 		// System.out.println(allPossibleStatetsInForwardDirection.size()); 
 		/**
 		 * Keep in mind that, training data points will be computed using each child state.
-		 * Call to the Fast Downward by passing the child state, and the goal state. 
-		 * */
+		 * Call to the Fast Downward by passing the child state, and the goal state. **/
 		PossibleGroundedLiterals possibleGroundedLiterals = new PossibleGroundedLiterals(pddlObject);		
-		ArrayList<Integer> listOfIntegersCorrespondingToLiterals = generateDataset(childState, listOfPossiblePropositions);
-		// This target is not generating properly
-		int target = targetByFastDownward(childState, this.details.getGoalState(), possibleGroundedLiterals);
+		PlanDetails planDetails = targetByFastDownward(childState, this.details.getGoalState(), possibleGroundedLiterals);
+		int target = planDetails.getPlanLength();
+		ArrayList<String> plan = planDetails.getGeneratedRealPlan(); 
 
-		listOfIntegersCorrespondingToLiterals.add(target);
-		// Write each training point into a file
-		String data = "";
-		for (int i = 0; i < listOfIntegersCorrespondingToLiterals.size(); i++) {
-			data = data +listOfIntegersCorrespondingToLiterals.get(i) + "\t";
-		}		
-		data = data + "\n";
-		try {
-			writer.append(data);
-		} 
-		catch (IOException e) {			
-			e.printStackTrace();
+		/** Code for bootstrapping! */
+		int max = plan.size();
+		int count = 0;
+		ArrayList<AtomicFormula> forwardState = childState;	
+		while(target >=0 )
+		{
+			ArrayList<Integer> listOfIntegersCorrespondingToLiterals = generateDataset(forwardState, listOfPossiblePropositions);
+			String data = "";			
+			listOfIntegersCorrespondingToLiterals.add(target);
+			for (int i = 0; i < listOfIntegersCorrespondingToLiterals.size(); i++) {
+				data = data +listOfIntegersCorrespondingToLiterals.get(i) + "\t";
+			}		
+			data = data + "\n";
+			try {
+				writer.append(data);
+			} catch (IOException e) {			
+				e.printStackTrace();
+			}
+
+			// Move to the next state using an action from the generated plan. // Code optimization required!
+			if(target != 0)
+			{
+				String actString = plan.get(count); 
+				Iterator itr = groundedActions.iterator();
+				while(itr.hasNext()) 
+				{
+					PossibleGroundedActions ga = (PossibleGroundedActions) itr.next();
+					boolean flag = ga.isThatGroundedAction(actString);
+					if(flag) {
+						forwardState = applyAction(ga, forwardState);
+						count++; break;					
+					}
+				}
+			}
+			target--; 
 		}
-
 		for (int i = 0; i < allPossibleStatetsInForwardDirection.size(); i++) 
 		{
 			if(! isSuccessorItsParentState(parentState,	allPossibleStatetsInForwardDirection.get(i))) {
@@ -177,13 +198,14 @@ public class DataSet
 	 * @param goalState
 	 * @return returns the target value, basically, the plan length found by the FD planner.
 	 * */
-	private Integer targetByFastDownward(ArrayList initialState, ArrayList goalState, PossibleGroundedLiterals possibleGroundedLiterals) 
+	private PlanDetails targetByFastDownward(ArrayList initialState, ArrayList goalState, PossibleGroundedLiterals possibleGroundedLiterals) 
 	{
 		int target = 1000000;
 		ArrayList<Constant> listOfConstants = possibleGroundedLiterals.listOfConstants();
 		// a call to create a problem file with new initial state.
 		generateProblemFile(initialState);
 		ArrayList<String> plan = new ArrayList<String>();
+		PlanDetails details =  new PlanDetails();
 		// a call to the fast downward through python script.
 		try 
 		{
@@ -234,13 +256,15 @@ public class DataSet
 					planDetails = line.split(" ");
 				}
 			}			
-			target = Integer.parseInt(planDetails[2]);			
-		} 
-		catch (Exception e) 
-		{
+
+			target = Integer.parseInt(planDetails[2]);
+			details.setPlanLength(target);
+			details.setGeneratedRealPlan(plan);
+
+		} catch (Exception e) {
 			System.err.println("Error in writing the planner output in file !!");
 		}
-		return target;
+		return details; 
 	}
 
 	/**
@@ -350,10 +374,9 @@ public class DataSet
 				}
 			}
 			try {
-				listOfInt.set(i, val);
-				// System.out.println("how many times?");
+				listOfInt.set(i, val);				
 			} catch (Exception e) {
-				System.out.println("error - updating values : call - generateDataset()");	
+				System.out.println("error - updating values : in the call of generateDataset()");	
 			}
 		}
 		return listOfInt;
@@ -368,7 +391,7 @@ public class DataSet
 			System.out.println("No actions are appicable on this child node: returning null");
 			return null;
 		}		
-		
+
 		ArrayList<ArrayList> listOfSuccessorStates = new ArrayList<ArrayList>();
 		for (int i = 0; i < getApplicableActions.size(); i++) {
 			getApplicableActions.get(i).printGroundedAction();
@@ -396,6 +419,7 @@ public class DataSet
 			PossibleGroundedActions ga = (PossibleGroundedActions) itr.next();
 			ArrayList<AtomicFormula> preCond = ga.getPreCond();			
 			if(isSubsetOf(preCond,childNode)) {
+				// ga.printGroundedAction();
 				applicableActions.add(ga);
 			}
 		}
@@ -420,7 +444,7 @@ public class DataSet
 		ArrayList<AtomicFormula> successorState = new ArrayList<AtomicFormula>();
 		successorState.addAll(childNode);
 		ArrayList<Exp> removeNeg = new ArrayList<Exp>();
-		groundedAction.printGroundedAction();
+		// groundedAction.printGroundedAction();
 
 		/** Formula: S_{new} = {S_{current} - effect^{-}(a)} U {effect^{+}(a)} */
 		Iterator<AtomicFormula> itrNew = successorState.iterator();
@@ -429,7 +453,7 @@ public class DataSet
 			if(groundedAction.getNegEff().contains(exp))
 				removeNeg.add(exp);
 		}
-		
+
 		/** Set Operations */
 		successorState.removeAll(removeNeg);
 		successorState.addAll(groundedAction.getPosEff());		
