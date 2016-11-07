@@ -123,7 +123,7 @@ public class DataSet_Type_2
 			ICombinatoricsVector<AtomicFormula> combinatoricsVector = Factory.createVector(apartFromTheGoals);
 			Generator<AtomicFormula> generator = Factory.createSimpleCombinationGenerator(combinatoricsVector, count);
 
-			// Read all possible combinations
+			/** Read all possible combinations */
 			for (ICombinatoricsVector<AtomicFormula> combination : generator) 
 			{
 				java.util.List<AtomicFormula> l = combination.getVector();
@@ -209,8 +209,10 @@ public class DataSet_Type_2
 		ArrayList<ArrayList<AtomicFormula>> generateAllPossibleCombiOfExtraGoalAchieved = generateAllPossibleCombiOfExtraGoalAchieved(goalPrimeMinusGoal);
 		ArrayList<ArrayList<Integer>> allPossibleListWithDontCare = new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> listWithDontCare = new ArrayList<Integer>();
+		// System.out.println(listOfPossiblePropositions.size());
 		for (int i = 0; i < listOfPossiblePropositions.size(); i++) {			
 			boolean flag = true;
+			// System.out.println(listOfPossiblePropositions.get(i));
 			for (int j = 0; j < theRealGoal.size(); j++) {
 				if(listOfPossiblePropositions.get(i).equals(theRealGoal.get(j)))
 				{
@@ -220,50 +222,74 @@ public class DataSet_Type_2
 			if(flag)
 				listWithDontCare.add(0);
 		}
-		allPossibleListWithDontCare.add(listWithDontCare);
+		allPossibleListWithDontCare.add(listWithDontCare);		
 
+		// Generated all possible 0s and 1s from the extra that we achieve.
 		for (int i = 0; i < generateAllPossibleCombiOfExtraGoalAchieved.size(); i++) 
-		{
+		{			
 			ArrayList<AtomicFormula> arrayList = generateAllPossibleCombiOfExtraGoalAchieved.get(i);
 			ArrayList<Integer> newIntegerList = new ArrayList<Integer>();
 			for (int j = 0; j < listWithDontCare.size(); j++) {
-				newIntegerList.add(listWithDontCare.get(j)); 
-			}
-			for (int j = 0; j < listOfPossiblePropositions.size(); j++) {
+				newIntegerList.add(listWithDontCare.get(j));				
+			}			
+			for (int j = 0; j < listOfPossiblePropositions.size(); j++) 
+			{
 				boolean flag = true;
 				for (int j2 = 0; j2 < arrayList.size(); j2++) {
 					if(listOfPossiblePropositions.get(j).equals(arrayList.get(j2)))
 					{
-						newIntegerList.add(j,1); flag = false; break;
+						newIntegerList.set(j, 1);
+						break;
 					}
 				}
-				int cou = 0;
-				for (int k = 0; k < newIntegerList.size(); k++) {
-					if (newIntegerList.get(k).equals(1))
-						cou++;
-				}
-				System.out.println(newIntegerList.size() +"\t"+ cou); 
 			}	
 			allPossibleListWithDontCare.add(newIntegerList);
-		}
+		}	
+
+		// Remove duplicates from the allPossibleListWithDontCare.
+		for (int i = 0; i < allPossibleListWithDontCare.size(); i++) 
+			for (int j = i+1; j < allPossibleListWithDontCare.size();) {
+				boolean flag = true;
+				for (int k = 0; k < allPossibleListWithDontCare.get(i).size(); k++)
+					if (! allPossibleListWithDontCare.get(i).get(k).equals(allPossibleListWithDontCare.get(j).get(k)))
+					{
+						flag = false; break;
+					}
+				if (flag)					
+					allPossibleListWithDontCare.remove(j);
+				else
+					j++;
+			}
 
 		/** Code for bootstrapping! */
 		int max = plan.size();
 		int count_1 = 0;
-		ArrayList<AtomicFormula> forwardState = childState;	
+		ArrayList<AtomicFormula> forwardState = new ArrayList<AtomicFormula>();	
+		for (int i = 0; i < childState.size(); i++) {
+			forwardState.add((AtomicFormula)childState.get(i));
+		}
 		while(target >=0 )
 		{
 			ArrayList<Integer> listOfIntegersCorrespondingToLiterals = generateDataset(forwardState, listOfPossiblePropositions);
-			String data = "";			
-			listOfIntegersCorrespondingToLiterals.add(target);
-			for (int i = 0; i < listOfIntegersCorrespondingToLiterals.size(); i++) {
-				data = data +listOfIntegersCorrespondingToLiterals.get(i) + "\t";
-			}		
-			data = data + "\n";
-			try {
-				writer.append(data);
-			} catch (IOException e) {			
-				e.printStackTrace();
+			for (int i = 0; i < allPossibleListWithDontCare.size(); i++) 
+			{
+				ArrayList<Integer> list = new ArrayList<Integer>();
+				for (int j = 0; j < listOfIntegersCorrespondingToLiterals.size(); j++) {
+					list.add(listOfIntegersCorrespondingToLiterals.get(j));
+				}
+				list.addAll(allPossibleListWithDontCare.get(i));
+				list.add(target);
+				// System.out.println(list); 
+				String data = "";			
+				for (int r = 0; r < list.size(); r++) {
+					data = data + list.get(r) + "\t";
+				}		
+				data = data + "\n";
+				try {
+					writer.append(data);
+				} catch (IOException e) {			
+					e.printStackTrace();
+				}
 			}
 
 			// Move to the next state using an action from the generated plan. // Code optimization required!
@@ -283,6 +309,7 @@ public class DataSet_Type_2
 			}
 			target--; 
 		}
+
 		for (int i = 0; i < allPossibleStatetsInForwardDirection.size(); i++) 
 		{
 			if(! isSuccessorItsParentState(parentState,	allPossibleStatetsInForwardDirection.get(i))) {
@@ -566,7 +593,7 @@ public class DataSet_Type_2
 	}
 
 	/**
-	 * Check if the successor state is the parent node.
+	 * Check if the successor state is the parent node. 
 	 * @param newState
 	 * @return status on isSuccessorItsParentState() */
 	private boolean isSuccessorItsParentState(ArrayList<AtomicFormula> parentState, ArrayList<AtomicFormula> successorState) 

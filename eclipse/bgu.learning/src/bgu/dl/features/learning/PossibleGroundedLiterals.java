@@ -33,7 +33,8 @@ public class PossibleGroundedLiterals
 	 * Given a search space, it will return you all the possible propositions that may occur
 	 * @return list of literals
 	 */
-	public ArrayList<AtomicFormula> allPossibleLiteralsMayOccur() {	
+	public ArrayList<AtomicFormula> allPossibleLiteralsMayOccur() 
+	{	
 		ArrayList<AtomicFormula> allPossibleLiterals = new ArrayList<AtomicFormula>();
 		ArrayList<AtomicFormula> ungroundedLiterals = listOfUngroundedLiterals();
 		Iterator<AtomicFormula> iterator = ungroundedLiterals.iterator();
@@ -44,12 +45,16 @@ public class PossibleGroundedLiterals
 		return allPossibleLiterals;
 	}
 
-	// returns all possible combinations for a literal using all the constants
+	// Returns all possible combinations for a literal using all the constants
 	private ArrayList<AtomicFormula> allPossibleFormOfaLiteral(AtomicFormula literal) {
 		ArrayList<AtomicFormula> allPossibleFormOfaLiteral = new ArrayList<AtomicFormula>();
 		ArrayList<Constant> constants = listOfConstants();
 		Set<Variable> freeVar = literal.getFreeVariables();
 		int noOfFreeVar = freeVar.size();
+		if (noOfFreeVar == 0)
+		{
+			allPossibleFormOfaLiteral.add(literal);
+		}
 		Literal lit = (Literal) literal;
 		ArrayList<ArrayList<Constant>> allPossibleCombi = generateAllCombinations(constants, noOfFreeVar);
 		Iterator<ArrayList<Constant>> iterator = allPossibleCombi.iterator();

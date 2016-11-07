@@ -80,19 +80,18 @@ public class MainEntry {
 			System.out.println("\nParsing domain \"" + domain.getDomainName() + "\" done successfully ...");
 			System.out.println("Parsing problem \"" + problem.getProblemName()+ "\" done successfully ...\n");
 
-			// Populate the details class with provided information
+			// Populate the details-class with the provided information.
 			ProblemDetails details = new ProblemDetails(obj);
+
+			/** Calls for different training set preparations. */
 			// DataSet_Type_1 set = new DataSet_Type_1();
 			DataSet_Type_2 set =  new DataSet_Type_2();
-			set.dataSet(details, obj);
-			try 
-			{
+
+			try {
+				set.dataSet(details, obj);
 				set.callForDatasetGeneration();
-			} 
-			catch (Exception e) 
-			{
+			} catch (Exception e) {
 				System.err.println("--------------- Error in main call -----------------\n"); 
-				e.printStackTrace();  
 			}			
 		}	
 	}
