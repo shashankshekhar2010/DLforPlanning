@@ -1,9 +1,0 @@
-package bgu.dl.features.collections;
-
-
-public class intermediateAction {
-	String new_action = null;
-	public intermediateAction(String str) {
-		this.new_action = str;		
-	}
-}

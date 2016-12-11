@@ -1,0 +1,40 @@
+package bgu.dl.features.test;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
+public class hello 
+{
+	public static void main(String[] args) throws NumberFormatException, IOException {
+
+		BufferedReader br = new BufferedReader(new FileReader("/home/shashank/Documents/Copy-IITM/Planning-Domain-IPC2/2000-Tests/Blocks/Generator/blocksworld-generator/bwstates/sss"));
+		Map<Integer, String> items = new TreeMap<Integer, String>();
+
+		String line = new String();
+		ArrayList<ArrayList<String>> list1 = new ArrayList<ArrayList<String>>();
+		ArrayList<String> list = new ArrayList<String>();
+ 		while (null != (line = br.readLine()))
+		{
+			String[] line_parts = line.split(" ");
+			for (int i = 0; i < line_parts.length; i++)
+			{
+				list.add((String)line_parts[i]);
+			}
+			list1.add(list);
+		}
+ 		int count = 0;
+ 		for (int i = 0; i < list1.size(); i++) {
+			for (int j = i; j < list1.size(); j++) {
+				if(list1.get(i).equals(list1.get(j)))
+					count++;
+			}
+			
+		}
+ 		System.out.println(count);
+	}
+}

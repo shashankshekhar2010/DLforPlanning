@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="bgu.dl.features.collections.DataSet_Type_3"/>
+<fullyQualifiedTypeName name="bgu.dl.features.learning.RandomProblem"/>
+<fullyQualifiedTypeName name="jnr.ffi.Struct.int16_t"/>
+<fullyQualifiedTypeName name="java.lang.Integer"/>
+<fullyQualifiedTypeName name="bgu.dl.features.collections.PropContextDataSet"/>
+<fullyQualifiedTypeName name="java.io.File"/>
+<fullyQualifiedTypeName name="bgu.dl.features.learning.InstantiatedByRandomProblem"/>
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
 <fullyQualifiedTypeName name="pddl4j.exp.AtomicFormula"/>
+<fullyQualifiedTypeName name="java.lang.String"/>
+<fullyQualifiedTypeName name="bgu.dl.features.collections.PlanDetails"/>
+<fullyQualifiedTypeName name="pddl4j.PDDLObject"/>
+<fullyQualifiedTypeName name="java.io.Writer"/>
+<fullyQualifiedTypeName name="java.lang.Exception"/>
 </qualifiedTypeNameHistroy>

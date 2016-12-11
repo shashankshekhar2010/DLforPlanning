@@ -1,0 +1,19 @@
+1481053767837	Rename type 'RandomProblem'
+1481053775647	Delete element
+1481053793137	Delete element
+1481053831753	Delete element
+1481054473265	Rename local variable 'pathToTheDomain'
+1481056146903	Rename method 'callForTheContextOfTheLiteralsInTheCurrentState'
+1481060485326	Rename local variable 'i'
+1481313531334	Rename local variable 'file_words'
+1481313554384	Rename local variable 'file_context'
+1481313573447	Rename local variable 'file_words_unigram'
+1481313622640	Rename local variable 'writer_words'
+1481313635683	Rename local variable 'writer_context'
+1481315851793	Rename local variable 'header_vocab'
+1481318128625	Rename local variable 'writer_context'
+1481318137107	Rename local variable 'writer_unigram_context'
+1481318240799	Rename local variable 'writer_context'
+1481318471040	Rename local variable 'writer_context'
+1481320367325	Rename method 'callForTheContextOfTheUnigramLiteralsInTheCurrentState'
+1481320388656	Rename method 'callForTheContextOfTheNGramLiteralsInTheCurrentState'

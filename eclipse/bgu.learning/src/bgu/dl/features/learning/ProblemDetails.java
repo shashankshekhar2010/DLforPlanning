@@ -50,25 +50,19 @@ public class ProblemDetails
 
 		/** Generate set of initial predicates */
 		initialState = new ArrayList();
-		Iterator initItrator = pddlObject.getInit().iterator();
-		System.out.print("The initial state is : ");
+		Iterator initItrator = pddlObject.getInit().iterator();		
 		while (initItrator.hasNext()) {
 			InitEl item = (InitEl) initItrator.next();
-			initialState.add(item);			
-			System.out.print(item.toString());
+			initialState.add(item);
 		}	
-		System.out.println();
 
 		/** Generates the goal predicates. */
 		AndExp goal = (AndExp) pddlObject.getGoal();
 		goalState = new ArrayList<Exp>();
-		System.out.print("The goal state is : ");
 		Iterator goalIterator = goal.iterator();
 		while(goalIterator.hasNext()){
-			goalState.add((Exp) goalIterator.next());
-			System.out.print(goalState.get(goalState.size()-1));
-		}
-		System.out.println("\n");
+			goalState.add((Exp) goalIterator.next());			
+		}	
 
 		/** Generates a set of the actions. */
 		actions = new ArrayList();
@@ -138,7 +132,6 @@ public class ProblemDetails
 		Iterator effectItr = aExp.iterator();
 		while(effectItr.hasNext()){
 			effect.add((Exp) effectItr.next());
-			//System.out.println("eff "+effect.get(i++));
 		}
 		return effect;
 	}
@@ -174,7 +167,6 @@ public class ProblemDetails
 		while(eItr.hasNext()){
 			precond.add((Exp) eItr.next());						
 		}
-		//System.out.println(precond.toString());
 		return precond;
 	}
 

@@ -6,6 +6,8 @@ import java.util.Properties;
 
 import bgu.dl.features.collections.DataSet_Type_1;
 import bgu.dl.features.collections.DataSet_Type_2;
+import bgu.dl.features.collections.DataSet_Type_3;
+import bgu.dl.features.collections.PropContextDataSet;
 
 import pddl4j.Domain;
 import pddl4j.ErrorManager;
@@ -21,11 +23,12 @@ public class MainEntry {
 	 * @author Shashank Shekhar
 	 * BGU of the Negev
 	 * @throws FileNotFoundException 
-	 */
+	 * */
 	public static void main(String[] args) throws FileNotFoundException {
 		System.out.println("--------------");
 		System.out.println("  Hello BGU   ");
 		System.out.println("--------------");
+		
 		long begin = System.nanoTime();	
 		Properties properties = new Properties();
 
@@ -49,8 +52,7 @@ public class MainEntry {
 		properties.put(RequireKey.UNIVERSAL_PRECONDITIONS, true);
 
 		// Check for the arguments if the files are not proper
-		if (args.length != 2) 
-		{
+		if (args.length != 2) {
 			System.err.print("The number of arguments are " + args.length);
 			System.err.println(", please check the requirements that you need to pass");
 			System.exit(0);
@@ -83,10 +85,10 @@ public class MainEntry {
 			// Populate the details-class with the provided information.
 			ProblemDetails details = new ProblemDetails(obj);
 
-			/** Calls for different training set preparations. */
+			/** Calls for different representations of training-sets preparation. */
 			// DataSet_Type_1 set = new DataSet_Type_1();
-			DataSet_Type_2 set =  new DataSet_Type_2();
-
+			// DataSet_Type_2 set =  new DataSet_Type_2();
+			DataSet_Type_3 set =  new DataSet_Type_3();
 			try {
 				set.dataSet(details, obj);
 				set.callForDatasetGeneration();

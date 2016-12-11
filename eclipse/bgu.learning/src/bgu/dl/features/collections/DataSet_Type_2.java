@@ -66,7 +66,7 @@ public class DataSet_Type_2
 
 		// Call to prepare the data set
 		try {
-			file = new File("/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/train.txt");
+			file = new File("/home/shashank/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/train.txt");
 			writer = new BufferedWriter(new FileWriter(file));
 			String header = "";
 			for (int i = 0; i < listOfPossiblePropositions.size(); i++) {
@@ -75,7 +75,7 @@ public class DataSet_Type_2
 			header = header + header + "target\n";
 			writer.append(header);
 			// Infinite call, pass the main training file.
-			while (counter++ < 50 && listParentChildSuccessors.size() > 0) 
+			while (counter++ < 2 && listParentChildSuccessors.size() > 0) 
 			{		
 				int randomIndex = randomNumber();
 				System.out.println("counter : " + counter);
@@ -103,11 +103,11 @@ public class DataSet_Type_2
 	/**
 	 * Random Number Generator
 	 * @return an index */
-	private int randomNumber() { 
+	private int randomNumber() {  
 		Random r = new Random();
 		int Low = 0;
 		int High = listParentChildSuccessors.size();
-		int Result = r.nextInt(High-Low) + Low;
+		int Result = r.nextInt(High-Low) + Low; 
 		return Result;
 	}
 
@@ -325,7 +325,7 @@ public class DataSet_Type_2
 	}
 
 	/**
-	 * Function call to the fast-downward (FD) planner | keep in mind that we will kill this call after certain time (say 30 minutes). 
+	 * Function call to the fast-downward (FD) planner | keep in mind that the call gets killed after a certain time (say after 30 minutes). 
 	 * @param initialState
 	 * @param goalState
 	 * @return returns the target value, basically, the plan length found by the FD planner.
@@ -343,9 +343,9 @@ public class DataSet_Type_2
 		{
 			String[] command = 
 				{
-					"/home/bgumodo1/Documents/Copy-IITM/Research-Edited/Fast-Downward/fast-downward.py",
-					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/domain.pddl",
-					"/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl",
+					"/home/shashank/Documents/Copy-IITM/Research-Edited/Fast-Downward/fast-downward.py",
+					"/home/shashank/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/domain.pddl",
+					"/home/shashank/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl",
 					"--heuristic",
 					"h=ff()",
 					"--search",
@@ -361,7 +361,7 @@ public class DataSet_Type_2
 			int count = 0;
 			while ((line = in.readLine()) != null) 
 			{
-				// Condition for getting the plans
+				// Conditions for getting the real plans
 				if(firstLine) 
 					count++;
 				if (line.contains("Actual search")) 
@@ -383,16 +383,15 @@ public class DataSet_Type_2
 					str = str + ")";		
 					plan.add(str.toString());
 				}
-				// condition for getting the targets
+				// Conditions for getting the real targets predicted by FD.
 				if (line.contains("Plan length")) {
 					planDetails = line.split(" ");
 				}
-			}			
-
+			}	
 			target = Integer.parseInt(planDetails[2]);
 			details.setPlanLength(target);
 			details.setGeneratedRealPlan(plan);
-
+			// The real plan extraction is ridiculously done, really need an update on that!
 		} catch (Exception e) {
 			System.err.println("Error in writing the planner output in file !!");
 		}
@@ -409,7 +408,7 @@ public class DataSet_Type_2
 		List<String> lines = new ArrayList<String>();
 		String line = null;
 		try {
-			File f1 = new File("/home/bgumodo1/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl");
+			File f1 = new File("/home/shashank/Dropbox/Bgu-Files/bgu.dl.heuristic/eclipse/bgu.learning/src/bgu/dl/features/learning/problem.pddl");
 			FileReader fr = new FileReader(f1);
 			BufferedReader br = new BufferedReader(fr);
 			String str ="(:init ";

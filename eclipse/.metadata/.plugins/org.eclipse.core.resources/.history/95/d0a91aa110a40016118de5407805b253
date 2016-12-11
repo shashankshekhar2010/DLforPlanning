@@ -1,9 +1,0 @@
-package bgu.dl.features.collections;
-
-import java.util.ArrayList;
-
-public class PlanDetails {
-	private int plan_length;
-	private ArrayList<String> generatedRealPlan;
-
-}

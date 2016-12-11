@@ -1,0 +1,44 @@
+Usage for Nen:
+---------------
+***   Training    ***
+java -jar nen.jar train [options] train_file model_file
+ Options:
+ -t model_type : set type of model (default 1)
+ 	1 -- Regression
+	2 -- Classification
+ -h hidden : set number of hidden units
+            (default 4 for Regression, #classes for Classification)
+ -n steps : set number of iterations
+            (default min(100k,5k+(10mio/#datapoints)) )
+ -lrstart l : set start-value of learnrate (default 0.005)
+ -lrend   l : set end-value of learnrate (default 0.0000001)
+
+***   Prediction    ***
+java -jar nen.jar predict test_file model_file output_file
+
+***   Scaling    ***
+java -jar nen.jar scale [options] input_file output_file
+ Options:
+ -t type : set scaling-type (default 1)
+ 	1 -- Scale both X and Y (for Regression problems)
+ 	2 -- Scale only X (for Classification problems)
+
+***   Splitting    ***
+java -jar nen.jar split [options] input_file train_outputfile test_outputfile
+ Options:
+ -t data_type : set type of data (default 1)
+ 	1 -- Regression
+ 	2 -- Classification
+ -r seed : set seed for split (default 0)
+ -p train_percentage : set trainsize in % (default 80)
+
+***   XVal   ***
+java -jar nen.jar xval [options] train_file model_file Options:
+ -t model_type : set type of model (default 1)
+ 	1 -- Regression
+ 	2 -- Classification
+ -k folds : set #partitions (default 3)
+ -h hidden : csv-separated list of #hidden-nodes (default 1,2,4,8,16,32)
+ -n steps : set number of iterations (default 2500)
+ -lrstart l : set start-value of learnrate (default 0.005)
+ -lrend   l : set end-value of learnrate (default 0.0000001)
