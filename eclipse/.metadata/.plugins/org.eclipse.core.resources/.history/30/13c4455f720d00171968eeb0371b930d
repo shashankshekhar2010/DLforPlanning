@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plps:code_generator_glue xmlns:plps="PLP-schemas"
+							xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+							xsi:schemaLocation="PLP-schemas GlueFile_schema.xsd">
+
+  <import from="nav_msgs.msg">
+    <python_class>Odometry</python_class>
+  </import>
+  <import from="geometry_msgs.msg">
+  	<python_class>Pose</python_class>
+  </import>
+  <import from="grid_map.msg">
+  	<python_class>GridMap</python_class>
+  </import>
+  
+  <parameter_location>
+    <param name="goal_location" />
+    <ROS_topic name="/maintain_dir_cmd" message_type="Pose" />
+  </parameter_location>
+  
+  <parameter_location>
+    <param name="map" />
+    <ROS_topic name="/map_publisher" message_type="GridMap" />
+  </parameter_location>
+ 
+ <parameter_location>
+    <param name="odometry" />
+    <ROS_topic name="/komodo_1/odom_pub" message_type="Odometry" />
+  </parameter_location>
+ 
+</plps:code_generator_glue>

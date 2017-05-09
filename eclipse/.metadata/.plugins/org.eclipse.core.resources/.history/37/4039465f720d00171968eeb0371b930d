@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plps:code_generator_glue xmlns:plps="PLP-schemas"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="PLP-schemas GlueFile_schema.xsd">
+
+  <import from="sensor_msgs.msg">
+    <python_class>LaserScan</python_class>
+  </import>
+  <import from="service_robot_msgs.msg">
+    <python_class>DetectionMsg</python_class>
+  </import>
+
+  <parameter_location>
+    <param name="laser_scan" />
+    <ROS_topic name="/komodo_1/scan" message_type="LaserScan" />
+  </parameter_location>
+  
+  <parameter_location>
+    <param name="output" />
+    <ROS_topic name="/wall_detection" message_type="DetectionMsg" />
+  </parameter_location>
+  
+  
+</plps:code_generator_glue>

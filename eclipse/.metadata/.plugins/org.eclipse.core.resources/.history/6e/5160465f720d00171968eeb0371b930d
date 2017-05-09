@@ -1,0 +1,6 @@
+(define (problem prob)
+(:domain domain)
+(:objects areaa areab gateway - object)
+(:INIT (at areaa) (connected areaa areab gateway))
+(:goal (AND (kv_gateway_location gateway))
+)

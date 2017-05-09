@@ -62,13 +62,13 @@ public class InstantiatedByRandomProblem {
 		}
 		return obj;
 	}
-	void callForDatasetGeneration(PlanDetails planDetails, PDDLObject obj, Writer writer, Writer writer_unigram_context, Writer writer_ngram_context)
+	void callForDatasetGeneration(PlanDetails planDetails, PDDLObject obj, Writer writer, Writer writer_ngram_context, MainClassForRandProblem problem)
 	{		
 		ProblemDetails details = new ProblemDetails(obj);
 		PropContextDataSet set = new PropContextDataSet();
 		try {
 			set.dataSet(details, obj);
-			set.callForDatasetGeneration(planDetails, writer, writer_unigram_context, writer_ngram_context);
+			set.callForDatasetGeneration(planDetails, writer, writer_ngram_context, problem);
 		} catch (Exception e) {
 			System.err.println("--------------- Error in the instantiationUsingARandomProblem() call -----------------"); 
 		}			

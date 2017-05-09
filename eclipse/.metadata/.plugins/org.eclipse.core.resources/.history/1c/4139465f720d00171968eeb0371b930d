@@ -1,0 +1,13 @@
+(define (domain plpdomain)
+	(:requirements :typing :equality)
+	(:types OBJECT)
+(:action walk_given_distance
+	:parameters (linear_distance - OBJECT angular_distance - OBJECT)
+	:precondition (and) 
+  	:effect (and (= robot_at_target true) (= energy_level energy_level - energy_consumed)))
+  	
+(:action observe_gateway
+	:parameters (areaa - OBJECT areab - OBJECT gateway - OBJECT)
+	:precondition (and (at areaa) (connected areaa areab gateway))
+	:effect (and (kv_gateway_location gateway)))
+)	

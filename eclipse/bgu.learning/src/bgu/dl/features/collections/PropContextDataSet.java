@@ -9,9 +9,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.Generator;
@@ -21,6 +26,7 @@ import pddl4j.PDDLObject;
 import pddl4j.exp.AtomicFormula;
 import pddl4j.exp.Exp;
 import pddl4j.exp.term.Constant;
+import bgu.dl.features.learning.MainClassForRandProblem;
 import bgu.dl.features.learning.PossibleGroundedLiterals;
 import bgu.dl.features.learning.ProblemDetails;
 
@@ -48,7 +54,7 @@ public class PropContextDataSet {
 	/**
 	 *  Will be called from the main file!
 	 * */
-	public void callForDatasetGeneration(PlanDetails planDetails, Writer writer, Writer writer_unigram_context, Writer writer_ngram_context) {
+	public void callForDatasetGeneration(PlanDetails planDetails, Writer writer, Writer writer_ngram_context, MainClassForRandProblem problem) {
 		PossibleGroundedLiterals possibleGroundedLiterals = new PossibleGroundedLiterals(pddlObject);		
 		ArrayList<AtomicFormula> listOfPossiblePropositions = new ArrayList<>();
 		listOfPossiblePropositions = possibleGroundedLiterals.allPossibleLiteralsMayOccur();
@@ -57,7 +63,7 @@ public class PropContextDataSet {
 
 		try 
 		{		
-			useBootstrapping(planDetails, writer, writer_unigram_context, writer_ngram_context, listOfPossiblePropositions);
+			useBootstrapping(planDetails, writer, writer_ngram_context, listOfPossiblePropositions, problem);
 		} 
 		catch (Exception e) {			
 			System.out.println("Error in the main dataset preparation function call..."); 
@@ -65,8 +71,9 @@ public class PropContextDataSet {
 		}		
 	}
 
-	void useBootstrapping(PlanDetails planDetails, Writer writer, Writer writer_unigram_context, Writer writer_ngram_context, ArrayList<AtomicFormula> listOfPossiblePropositions_1)
-	{
+	@SuppressWarnings({ "unchecked", "static-access" })
+	void useBootstrapping(PlanDetails planDetails, Writer writer, Writer writer_ngram_context, 
+			ArrayList<AtomicFormula> listOfPossiblePropositions_1, MainClassForRandProblem problem) {
 		ArrayList<String> listOfPossiblePropositions = new ArrayList<>();
 		ArrayList<String> header_init = new ArrayList<String>();
 		ArrayList<String> header_goal = new ArrayList<String>();
@@ -77,13 +84,12 @@ public class PropContextDataSet {
 			header_goal.add("(not"+ listOfPossiblePropositions_1.get(k) + ")" +"-G");
 		}
 		listOfPossiblePropositions.addAll(header_init);
-		listOfPossiblePropositions.addAll(header_goal);
+		listOfPossiblePropositions.addAll(header_goal);	
 
 		/**
 		 * Keep in mind that, training data points will be computed using each child state.
-		 * Call to the Fast Downward by passing the child state, and the goal state. 
-		 * */
-		PossibleGroundedLiterals possibleGroundedLiterals = new PossibleGroundedLiterals(pddlObject);
+		 * Call to the Fast Downward by passing the child state, and the goal state. **/
+		// PossibleGroundedLiterals possibleGroundedLiterals = new PossibleGroundedLiterals(pddlObject);
 		int target = planDetails.getPlanLength();
 		ArrayList<String> plan = planDetails.getGeneratedRealPlan();
 
@@ -91,10 +97,10 @@ public class PropContextDataSet {
 		int count = 0;
 		ArrayList<PossibleGroundedActions> realActions = new ArrayList<PossibleGroundedActions>();
 		for (int i = 0; i < plan.size(); i++) {
-			String actString = plan.get(i); 
-			Iterator itr = groundedActions.iterator();
+			String actString = plan.get(i);  
+			Iterator<PossibleGroundedActions> itr = groundedActions.iterator();
 			while(itr.hasNext()) {
-				PossibleGroundedActions ga = (PossibleGroundedActions) itr.next();
+				PossibleGroundedActions ga = itr.next();
 				boolean flag = ga.isThatGroundedAction(actString);
 				if(flag) {
 					realActions.add(ga);
@@ -105,16 +111,38 @@ public class PropContextDataSet {
 
 		@SuppressWarnings("unchecked")
 		ArrayList<AtomicFormula> theRealGoal = this.details.getGoalState();
-		@SuppressWarnings("unchecked")
 		ArrayList<AtomicFormula> theRealGoalPrime = this.details.getInitialState();		
 		for (int i = 0; i < realActions.size(); i++) {
 			theRealGoalPrime = applyAction(realActions.get(i), theRealGoalPrime);
 		}
 
-		// Extracts the extra things that are achieved during achieving the real goals.
+		/** Hash map for the index. */
+		HashMap<String,Integer> localIndexForEachLiteral = new HashMap<String, Integer>();  
+		for(int i=0; i<listOfPossiblePropositions.size(); i++) {
+			localIndexForEachLiteral.put(listOfPossiblePropositions.get(i), i+1);
+		}	
+
+		/**
+		 * Generate different combinations of those extra achievements, as of now consider this combination generator. */
+		ArrayList<Integer> listWithDontCare = new ArrayList<Integer>();
+		for (int i = 0; i < listOfPossiblePropositions.size(); i++) {			
+			boolean flag = true;
+			for (int j = 0; j < theRealGoal.size(); j++) {
+				String str = theRealGoal.get(j).toString()+"-G";
+				if(listOfPossiblePropositions.get(i).equals(str)) {
+					listWithDontCare.add(1); flag = false; break;
+				}
+			}
+			if(flag)
+				listWithDontCare.add(0);
+		}
+
+		ArrayList<ArrayList<Integer>> allPossibleListWithDontCare = new ArrayList<ArrayList<Integer>>();
+		allPossibleListWithDontCare.add(listWithDontCare);		// just adds the original goal.
+
+		/** goalPrimeMinusGoal = set operation of {theRealGoalPrime \ theRealGoal} */
 		ArrayList<AtomicFormula> goalPrimeMinusGoal = new ArrayList<AtomicFormula>();
-		for (int i = 0; i < theRealGoalPrime.size(); i++) 
-		{
+		for (int i = 0; i < theRealGoalPrime.size(); i++) {
 			boolean flag = false;
 			for (int j = 0; j < theRealGoal.size(); j++) {
 				if(theRealGoalPrime.get(i).equals(theRealGoal.get(j))){
@@ -126,91 +154,52 @@ public class PropContextDataSet {
 			}
 		}
 
-		/**
-		 * Generate different combinations of those extra achievements, as of now consider this combination generator. 
-		 * But code optimization required!..! **/
-		ArrayList<ArrayList<Integer>> allPossibleListWithDontCare = new ArrayList<ArrayList<Integer>>();
-		ArrayList<Integer> listWithDontCare = new ArrayList<Integer>();
-		// System.out.println(listOfPossiblePropositions.size());
-		for (int i = 0; i < listOfPossiblePropositions.size(); i++) {			
-			boolean flag = true;
-			// System.out.println(listOfPossiblePropositions.get(i));
-			for (int j = 0; j < theRealGoal.size(); j++) {
-				String str = theRealGoal.get(j).toString()+"-G";
-				if(listOfPossiblePropositions.get(i).equals(str)) {
-					listWithDontCare.add(1); flag = false; break;
-				}
+		/** Generated all possible 0s and 1s from the extra that we achieve. */
+		ArrayList<ArrayList<AtomicFormula>> generateAllPossibleCombiOfExtraGoalAchieved = new ArrayList<ArrayList<AtomicFormula>>(); 
+		Set<Set<AtomicFormula>>	af = generateAllPossibleCombiOfExtraGoalAchieved(goalPrimeMinusGoal);
+		for (Set<AtomicFormula> s : af) {
+			if(s.size() !=0) {
+				ArrayList<AtomicFormula> f = new ArrayList<>(s);
+				generateAllPossibleCombiOfExtraGoalAchieved.add(f);
 			}
-			if(flag)
-				listWithDontCare.add(0);
 		}
-		allPossibleListWithDontCare.add(listWithDontCare);		
 
-		// Generated all possible 0s and 1s from the extra that we achieve.
-		ArrayList<ArrayList<AtomicFormula>> generateAllPossibleCombiOfExtraGoalAchieved = generateAllPossibleCombiOfExtraGoalAchieved(goalPrimeMinusGoal);		
 		for (int i = 0; i < generateAllPossibleCombiOfExtraGoalAchieved.size(); i++) 
-		{			
-			ArrayList<AtomicFormula> arrayList = generateAllPossibleCombiOfExtraGoalAchieved.get(i);
-			ArrayList<Integer> newIntegerList = new ArrayList<Integer>();
-			for (int j = 0; j < listWithDontCare.size(); j++) {
-				newIntegerList.add(listWithDontCare.get(j));				
+		{	
+			ArrayList<AtomicFormula> oneListWithExtraGoalLiterals = generateAllPossibleCombiOfExtraGoalAchieved.get(i);
+			ArrayList<Integer> oneListCompl_IG_WithExtraGoalLiterals = new ArrayList<Integer>();
+			oneListCompl_IG_WithExtraGoalLiterals.addAll(listWithDontCare);			
+			for (int j2 = 0; j2 < oneListWithExtraGoalLiterals.size(); j2++) {
+				String string = oneListWithExtraGoalLiterals.get(j2).toString()+"-G";
+				Integer ind = localIndexForEachLiteral.get(string);
+				oneListCompl_IG_WithExtraGoalLiterals.set(ind-1, 1);
 			}			
-			for (int j = 0; j < listOfPossiblePropositions.size(); j++) 
-			{
-				boolean flag = true;
-				for (int j2 = 0; j2 < arrayList.size(); j2++) {
-					String string = arrayList.get(j2).toString()+"-G";
-					if(listOfPossiblePropositions.get(j).equals(string))
-					{
-						newIntegerList.set(j, 1);
-						break;
-					}
-				}
-			}	
-			allPossibleListWithDontCare.add(newIntegerList);
+			allPossibleListWithDontCare.add(oneListCompl_IG_WithExtraGoalLiterals);
 		}	
 
-		// Remove duplicates from the allPossibleListWithDontCare.
-		for (int i = 0; i < allPossibleListWithDontCare.size(); i++) 
-			for (int j = i+1; j < allPossibleListWithDontCare.size();) 
-			{
-				boolean flag = true;
-				for (int k = 0; k < allPossibleListWithDontCare.get(i).size(); k++)
-					if (! allPossibleListWithDontCare.get(i).get(k).equals(allPossibleListWithDontCare.get(j).get(k))) {
-						flag = false; break;
-					}
-				if (flag) allPossibleListWithDontCare.remove(j);
-				else j++;
-			}
-
 		/** Code for bootstrapping! */
-		int max = plan.size();
-		int count_1 = 0;
 		ArrayList<AtomicFormula> forwardState = new ArrayList<AtomicFormula>();	
-		for (int i = 0; i < this.details.getInitialState().size(); i++) {
-			forwardState.add((AtomicFormula)this.details.getInitialState().get(i));
-		}
-		while(target >=0 )
-		{
+		forwardState.addAll(this.details.getInitialState());
+		// System.out.println("Actual target: "+ target +" Size(Powerset): "+ allPossibleListWithDontCare.size());
+		
+		while(target >=0 ) {			
 			// This captures the initial state (listOfIntegersCorrespondingToLiterals).
-			ArrayList<Integer> listOfIntegersCorrespondingToLiterals = generateDataset(forwardState, listOfPossiblePropositions);				
-
-			for (int i = 0; i < allPossibleListWithDontCare.size(); i++) 
-			{
-				ArrayList<Integer> list = new ArrayList<Integer>();
-				for (int j = 0; j < listOfIntegersCorrespondingToLiterals.size(); j++) {
-					list.add(listOfIntegersCorrespondingToLiterals.get(j));
+			ArrayList<Integer> listOfIntegersCorrespondingToLiterals = generateDataset(forwardState, listOfPossiblePropositions, localIndexForEachLiteral);	
+			
+			for (int i = 0; i < allPossibleListWithDontCare.size(); i++) {				
+				ArrayList<Integer> list = new ArrayList<Integer>();	
+				for (int j = 0; j < listOfPossiblePropositions.size(); j++) 
+					list.add(0);
+				int size = listOfPossiblePropositions.size();
+				for (int j = 0; j < size/2; j++) {
+					list.set(j, listOfIntegersCorrespondingToLiterals.get(j));
+					list.set(size/2+j, allPossibleListWithDontCare.get(i).get(size/2+j));
 				}
-				list.addAll(allPossibleListWithDontCare.get(i));			
 				
-				// Function call for finding the uni-gram context, that returns nothing
-				callForTheContextOfTheUnigramLiteralsInTheCurrentInitGoalStates(list, writer_unigram_context);
-				// callForTheContextOfTheNGramLiteralsInTheCurrentInitGoalStates(list, writer_ngram_context);				
+				// Call for the N-Gram context generation in a given (I, G) pair.
+				// callForTheContextOfTheNGramLiteralsInTheCurrentInitGoalStates(list, writer_ngram_context);
 				
-				// Added the target now.
 				list.add(target);
-				
-				// System.out.println(list); 
 				String data = "";			
 				for (int r = 0; r < list.size(); r++) {
 					data = data + list.get(r) + "\t";
@@ -218,29 +207,28 @@ public class PropContextDataSet {
 				data = data + "\n";
 				try {
 					writer.append(data); 
-				} catch (IOException e) {			
+				} catch (IOException e) {
+					System.out.println("Error in the useBootstrapping function call");
 					e.printStackTrace();
 				}
+				problem.numberOfSamplesGenerated++;
 			}
 
-			// Move to the next state using an action from the generated plan. // Code optimization required!
-			if(target != 0)
-			{
+			// Move to the next state using an action from the generated plan. 
+			if(target != 0) {
 				String actString1 = plan.get(count); 
-				Iterator itr1 = groundedActions.iterator();
-				while(itr1.hasNext()) 
-				{
-					PossibleGroundedActions ga = (PossibleGroundedActions) itr1.next();
+				Iterator<PossibleGroundedActions> itr1 = groundedActions.iterator();
+				while(itr1.hasNext()) {
+					PossibleGroundedActions ga = itr1.next();
 					boolean flag = ga.isThatGroundedAction(actString1);
 					if(flag) {
 						forwardState = applyAction(ga, forwardState);
 						count++; break;					
 					}
 				}
-			}
+			}				
 			target--; 
 		}
-		// System.out.print("hi ");
 	}
 
 	/**
@@ -248,7 +236,8 @@ public class PropContextDataSet {
 	 * */
 	void callForTheContextOfTheUnigramLiteralsInTheCurrentInitGoalStates(ArrayList<Integer>listOfIntegersCorrespondingToLiterals, Writer writer_context)
 	{
-		String data = "";			
+		String data = "";	
+		data = listOfIntegersCorrespondingToLiterals.toString();
 		for (int r = 0; r < listOfIntegersCorrespondingToLiterals.size(); r++) {
 			data = data + listOfIntegersCorrespondingToLiterals.get(r) + "\t";
 		}	
@@ -260,24 +249,35 @@ public class PropContextDataSet {
 			System.out.println("Error while writing the contexts");
 		}		
 	}
-	
+
 	/**
 	 * Maintaining context in each state.
+	 * @throws IOException 
 	 * */
-	void callForTheContextOfTheNGramLiteralsInTheCurrentInitGoalStates(ArrayList<Integer>listOfIntegersCorrespondingToLiterals, Writer writer_ngram_context)
+	void callForTheContextOfTheNGramLiteralsInTheCurrentInitGoalStates(ArrayList<Integer> listOfIntegersCorrespondingToLiterals, Writer writer_ngram_context) 
 	{
-		String data = "";			
-		for (int r = 0; r < listOfIntegersCorrespondingToLiterals.size(); r++) {
-			for (int s = r+1; s < listOfIntegersCorrespondingToLiterals.size(); s++) {
-				if(listOfIntegersCorrespondingToLiterals.get(r) == 1 && listOfIntegersCorrespondingToLiterals.get(s) == 1)
-					data = data + "1" + "\t";
-				else 
-					data = data + "0" + "\t";				
-			}
-		}	
-		data = data + "\n";
+		File file = new File("/home/shashank/Documents/Experiments-DL-NGrams/temp.txt");
+		String data = "";
 		try {
-			writer_ngram_context.append(data); 
+			Writer writer = new BufferedWriter(new FileWriter(file));
+			for (int r = 0; r < listOfIntegersCorrespondingToLiterals.size(); r++) {
+				for (int s = r+1; s < listOfIntegersCorrespondingToLiterals.size(); s++) {
+					if(listOfIntegersCorrespondingToLiterals.get(r) == 1 && listOfIntegersCorrespondingToLiterals.get(s) == 1)
+						writer.append("1" + "\t");					
+					else 
+						writer.append("0" + "\t");				
+				}			
+			}
+			writer.append("\n");
+			writer.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			data = new String(Files.readAllBytes(Paths.get("/home/shashank/Documents/Experiments-DL-NGrams/temp.txt")));
+			writer_ngram_context.append(data);
+			
 		} catch (IOException e) {			
 			e.printStackTrace();
 			System.out.println("Error while writing the contexts");
@@ -290,6 +290,7 @@ public class PropContextDataSet {
 	 * @param goalState
 	 * @return returns the target value, basically, the plan length found by the FD planner.
 	 * */
+	@SuppressWarnings({ "rawtypes", "unused" })
 	private PlanDetails targetByFastDownward(ArrayList initialState, PossibleGroundedLiterals possibleGroundedLiterals) {
 		int target = 1000000; // default path length
 		ArrayList<String> plan = new ArrayList<String>();
@@ -394,42 +395,27 @@ public class PropContextDataSet {
 	}
 
 	// Calling to feed (0 or 1) corresponding to each entry in the list of proposition
-	private ArrayList<Integer> generateDataset(ArrayList givenState, ArrayList<String> listOfPossiblePropositions) {	
+	private ArrayList<Integer> generateDataset(ArrayList<AtomicFormula> givenState, ArrayList<String> listOfPossiblePropositions, HashMap<String, Integer> indexMap) {	
 		// No closed world assumptions - basically.
 		ArrayList<Integer> listOfInt = new ArrayList<Integer>();
-		for (int i = 0; i < listOfPossiblePropositions.size(); i++) {
-			listOfInt.add(0);
+		for (int i = 0; i < listOfPossiblePropositions.size()/2; i++) {
+			listOfInt.add(0); // by default all 0s			
 		}
-
-		for (int i = 0; i < listOfPossiblePropositions.size(); i++) 
-		{
+		for (int i = 0; i < givenState.size(); i++) {
+			String string = givenState.get(i).toString();
+			string = string+"-I";
+			Integer ind = indexMap.get(string);
+			listOfInt.set(ind-1, 1);
+		}
+		for (int i = 0; i < listOfPossiblePropositions.size()/2; i++) {
 			String af = listOfPossiblePropositions.get(i);
-			if(af.contains("not"))
-			{
-				if(listOfInt.get(i-1) == 0)
-				{
+			if(af.contains("not") && af.contains("-I")) {
+				if(listOfInt.get(i-1) == 0) {
 					listOfInt.set(i, 1);	
 				}
 				continue;
 			}
-			// Considering the closed world assumptions, we give a default value 0 to each literal.
-			int val = 0;
-			for(int j = 0; j < givenState.size(); j++) {
-				AtomicFormula fromInit = (AtomicFormula) givenState.get(j);
-				if ((fromInit.toString()+"-I").equals(af.toString())) { 
-					val = 1;
-					break;
-				} 
-			}	
-
-			try {				
-				listOfInt.set(i, val);				
-			} 
-			catch (Exception e) {
-				System.out.println("error - updating values : in the call of generateDataset()");	
-			}
-		}
-		// this list is correct!		
+		}		
 		return listOfInt;
 	}
 
@@ -471,7 +457,7 @@ public class PropContextDataSet {
 	 * Returns all possible combinations of extra goal predicates achieved during the plan execution.
 	 * @param apartFromTheGoals
 	 * @return generateAllPossibleCombiOfExtraGoalAchieved **/
-	public ArrayList<ArrayList<AtomicFormula>> generateAllPossibleCombiOfExtraGoalAchieved(ArrayList<AtomicFormula> apartFromTheGoals) {
+	public ArrayList<ArrayList<AtomicFormula>> generateAllPossibleCombiOfExtraGoalAchieved_old(ArrayList<AtomicFormula> apartFromTheGoals) {
 		ArrayList<ArrayList<AtomicFormula>> generateAllPossibleCombiOfExtraGoalAchieved = new ArrayList<ArrayList<AtomicFormula>>();
 		ArrayList<AtomicFormula> eachCombiOfExtraGoals = new ArrayList<AtomicFormula>();
 		for (int i = 0; i < apartFromTheGoals.size(); i++) {
@@ -497,5 +483,29 @@ public class PropContextDataSet {
 			}
 		}
 		return generateAllPossibleCombiOfExtraGoalAchieved;
+	}
+
+	// Re-written
+	public Set<Set<AtomicFormula>> generateAllPossibleCombiOfExtraGoalAchieved(ArrayList<AtomicFormula> apartFromTheGoals) 
+	{
+		Set<AtomicFormula> set = new HashSet<AtomicFormula>();
+		set.addAll(apartFromTheGoals);
+		Set<Set<AtomicFormula>> sets = new HashSet<Set<AtomicFormula>>();
+		if (apartFromTheGoals.isEmpty()) {
+			sets.add(new HashSet<AtomicFormula>());
+			return sets;
+		}
+		List<AtomicFormula> list = new ArrayList<AtomicFormula>(apartFromTheGoals);
+		AtomicFormula head = list.get(0);
+		Set<AtomicFormula> rest = new HashSet<AtomicFormula>(list.subList(1, list.size()));
+		ArrayList<AtomicFormula> af = new ArrayList<AtomicFormula>(rest);
+		for (Set<AtomicFormula> set1 : generateAllPossibleCombiOfExtraGoalAchieved(af)) {
+			Set<AtomicFormula> newSet = new HashSet<AtomicFormula>();
+			newSet.add(head);
+			newSet.addAll(set1);
+			sets.add(newSet);
+			sets.add(set1);
+		}       
+		return sets;
 	}
 }
